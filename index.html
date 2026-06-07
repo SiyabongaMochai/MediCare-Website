@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediCare Clinic - Login</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a5f7a 0%, #159895 50%, #57c5b6 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+            overflow: hidden;
+            width: 100%;
+            max-width: 950px;
+            display: flex;
+            min-height: 580px;
+        }
+        .login-sidebar {
+            background: linear-gradient(180deg, #1a5f7a 0%, #0d3d4d 100%);
+            color: white;
+            padding: 40px;
+            width: 38%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .login-sidebar h1 { font-size: 2rem; margin-bottom: 12px; }
+        .login-sidebar p { opacity: 0.85; line-height: 1.6; margin-bottom: 22px; font-size: 0.95rem; }
+        .feature-list { list-style: none; }
+        .feature-list li { padding: 7px 0; display: flex; align-items: center; gap: 10px; font-size: 0.92rem; }
+        .feature-list li::before {
+            content: "✓";
+            background: #57c5b6;
+            width: 20px; height: 20px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; flex-shrink: 0;
+        }
+        .login-main {
+            flex: 1;
+            padding: 40px 38px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow-y: auto;
+        }
+        /* Tabs */
+        .tabs { display: flex; margin-bottom: 22px; border-bottom: 2px solid #eee; }
+        .tab { padding: 11px 22px; cursor: pointer; border: none; background: none; font-size: 0.97rem; color: #666; position: relative; transition: all 0.2s; }
+        .tab.active { color: #1a5f7a; font-weight: 600; }
+        .tab.active::after { content: ""; position: absolute; bottom: -2px; left: 0; right: 0; height: 3px; background: #1a5f7a; border-radius: 3px 3px 0 0; }
+        .form-container { display: none; }
+        .form-container.active { display: block; }
+        /* User type selector */
+        .user-type-selector { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 18px; }
+        .user-type-btn {
+            padding: 10px 5px; border: 2px solid #eee; border-radius: 10px;
+            background: white; cursor: pointer; transition: all 0.2s;
+            text-align: center; font-size: 0.76rem; color: #444;
+        }
+        .user-type-btn:hover { border-color: #1a5f7a; }
+        .user-type-btn.selected { border-color: #1a5f7a; background: #e8f4f8; color: #1a5f7a; font-weight: 600; }
+        .user-type-btn span { font-size: 18px; display: block; margin-bottom: 3px; }
+        /* Form */
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 6px; color: #333; font-weight: 500; font-size: 0.88rem; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 12px 14px;
+            border: 2px solid #eee; border-radius: 10px;
+            font-size: 0.97rem; transition: all 0.2s; font-family: inherit; color: #2d3436;
+        }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #1a5f7a; box-shadow: 0 0 0 3px rgba(26,95,122,0.1); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .btn-primary {
+            width: 100%; padding: 13px;
+            background: linear-gradient(135deg, #1a5f7a 0%, #159895 100%);
+            color: white; border: none; border-radius: 10px;
+            font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(26,95,122,0.3); }
+        .alert { padding: 11px 14px; border-radius: 9px; margin-bottom: 13px; display: none; font-size: 0.88rem; }
+        .alert-error   { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .alert-success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .employee-notice { background: #fff3cd; border: 1px solid #ffc107; border-radius: 9px; padding: 10px 13px; margin-bottom: 13px; font-size: 0.83rem; color: #856404; display: none; }
+        .forgot-link { text-align: right; margin-top: -8px; margin-bottom: 14px; }
+        .forgot-link a { color: #1a5f7a; font-size: 0.83rem; cursor: pointer; text-decoration: none; }
+        .forgot-link a:hover { text-decoration: underline; }
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; justify-content: center; align-items: center; }
+        .modal.show { display: flex; }
+        .modal-box { background: white; border-radius: 18px; width: 90%; max-width: 440px; padding: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+        .modal-box h3 { font-size: 1.2rem; color: #1a5f7a; margin-bottom: 8px; }
+        .modal-box p  { color: #636e72; font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+        .btn-sec { padding: 9px 20px; border: 2px solid #eee; border-radius: 9px; background: white; cursor: pointer; font-size: 0.9rem; }
+        .btn-sec:hover { border-color: #1a5f7a; color: #1a5f7a; }
+        @media (max-width: 768px) {
+            .login-container { flex-direction: column; }
+            .login-sidebar { width: 100%; padding: 28px; }
+            .user-type-selector { grid-template-columns: repeat(3, 1fr); }
+            .form-row { grid-template-columns: 1fr; }
+            .login-main { padding: 28px 22px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <div class="login-sidebar">
+        <h1>🏥 MediCare Clinic</h1>
+        <p>Complete healthcare management for patients, staff, and emergency services.</p>
+        <ul class="feature-list">
+            <li>Patient records &amp; medical history</li>
+            <li>Medication pickup scheduling</li>
+            <li>Ambulance request &amp; tracking</li>
+            <li>Clinic appointment booking</li>
+            <li>Maintenance management</li>
+            <li>Full admin control panel</li>
+        </ul>
+    </div>
+    <div class="login-main">
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('login')">Login</button>
+            <button class="tab" onclick="switchTab('signup')">Sign Up</button>
+        </div>
+        <div class="alert alert-error"   id="errorMsg"></div>
+        <div class="alert alert-success" id="successMsg"></div>
+
+        <!-- LOGIN FORM -->
+        <div class="form-container active" id="loginForm">
+            <div class="user-type-selector">
+                <button class="user-type-btn selected" onclick="selectUserType(this,'patient')"><span>👤</span>Patient</button>
+                <button class="user-type-btn" onclick="selectUserType(this,'clerk')"><span>📋</span>Clerk</button>
+                <button class="user-type-btn" onclick="selectUserType(this,'ambulance')"><span>🚑</span>Ambulance</button>
+                <button class="user-type-btn" onclick="selectUserType(this,'maintenance')"><span>⚙️</span>Admin</button>
+                <button class="user-type-btn" onclick="selectUserType(this,'maint_team')"><span>🔧</span>Maint.</button>
+            </div>
+            <div class="employee-notice" id="employeeNotice">⚠️ Use your assigned Employee ID to login.</div>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label id="usernameLabel">SA ID Number</label>
+                    <input type="text" id="loginUsername" placeholder="Enter your 13-digit SA ID" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter your password" required autocomplete="current-password">
+                </div>
+                <div class="forgot-link"><a onclick="openForgotModal()">Forgot password?</a></div>
+                <button type="submit" class="btn-primary">Login</button>
+            </form>
+        </div>
+
+        <!-- SIGN UP (patients only) -->
+        <div class="form-container" id="signupForm">
+            <p style="margin-bottom:14px;color:#636e72;font-size:0.88rem">Patient self-registration. All staff accounts are created by the Admin.</p>
+            <form onsubmit="handleSignup(event)">
+                <div class="form-group">
+                    <label>SA ID Number (13 digits)</label>
+                    <input type="text" id="signupId" placeholder="13-digit SA ID" pattern="\d{13}" maxlength="13" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>First Name</label><input type="text" id="signupName" placeholder="First name" required></div>
+                    <div class="form-group"><label>Surname</label><input type="text" id="signupSurname" placeholder="Surname" required></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Phone Number</label><input type="tel" id="signupPhone" placeholder="0821234567" required></div>
+                    <div class="form-group"><label>City / Town</label><input type="text" id="signupCity" placeholder="Your city" required></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Password</label><input type="password" id="signupPassword" placeholder="Min 6 characters" required></div>
+                    <div class="form-group"><label>Confirm Password</label><input type="password" id="signupConfirm" placeholder="Repeat password" required></div>
+                </div>
+                <button type="submit" class="btn-primary">Create Account</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- FORGOT PASSWORD MODAL -->
+<div class="modal" id="forgotModal">
+    <div class="modal-box">
+        <h3>🔑 Forgot Password</h3>
+        <p>Enter your ID below. Your administrator can reset your password from the Admin Dashboard.</p>
+        <div id="forgotFields">
+            <div class="form-group" style="margin-bottom:12px">
+                <label style="font-size:0.88rem;font-weight:500;color:#333;display:block;margin-bottom:6px">Your ID</label>
+                <input type="text" id="forgotId" placeholder="Employee ID or SA ID" style="width:100%;padding:11px 14px;border:2px solid #eee;border-radius:10px;font-size:0.95rem;font-family:inherit">
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+                <label style="font-size:0.88rem;font-weight:500;color:#333;display:block;margin-bottom:6px">Your Role</label>
+                <select id="forgotRole" style="width:100%;padding:11px 14px;border:2px solid #eee;border-radius:10px;font-size:0.95rem;font-family:inherit;background:white">
+                    <option value="patient">Patient</option>
+                    <option value="clerk">Clerk</option>
+                    <option value="ambulance">Ambulance Driver</option>
+                    <option value="maint_team">Maintenance Staff</option>
+                </select>
+            </div>
+        </div>
+        <div id="forgotResult" style="display:none"></div>
+        <div class="modal-footer">
+            <button class="btn-sec" onclick="closeForgotModal()">Close</button>
+            <button class="btn-primary" style="width:auto;padding:9px 22px" onclick="handleForgot()">Find Account</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let selectedUserType = 'patient';
+
+// ── Bootstrap ────────────────────────────────────────────────
+// This runs every time the page loads.
+// It sets up the database if it doesn't exist yet, and always
+// makes sure the default master admin account exists.
+// localStorage is the browser's built-in key-value storage —
+// it persists across page reloads but is local to the browser.
+function bootstrapDB() {
+
+    // STEP 1 — Wipe old demo data from a previous version of the site.
+    // 'healthcareDataInitialized' was the old flag. If we find it but
+    // NOT our new 'medicareClean' flag, this is an old install — clear it.
+    if (localStorage.getItem('healthcareDataInitialized') && !localStorage.getItem('medicareClean')) {
+        ['patients','ambulanceRequests','scheduledPickups','appointments',
+         'adminLogs','maintTasks','maintInventory','maintLog',
+         'healthcareDataInitialized','employees'].forEach(k => localStorage.removeItem(k));
+    }
+
+    // STEP 2 — Load whatever employees are currently saved (or start fresh).
+    const employees = JSON.parse(localStorage.getItem('employees') || '{}');
+
+    // Make sure each staff category array exists
+    if (!employees.maintenance) employees.maintenance = [];
+    if (!employees.clerks)      employees.clerks      = [];
+    if (!employees.ambulance)   employees.ambulance   = [];
+    if (!employees.maint_team)  employees.maint_team  = [];
+
+    // STEP 3 — Always ensure the default master admin exists with the correct password.
+    // We find the account by username 'siya' and upsert it — create if missing,
+    // or update the password if it already exists with an old value.
+    const masterIdx = employees.maintenance.findIndex(a => a.id === 'siya');
+    if (masterIdx === -1) {
+        // Not found at all — add to the front of the array
+        employees.maintenance.unshift({
+            id:       'siya',
+            name:     'Siya',
+            password: 'siyabonga',
+            email:    '',
+            isMaster: true
+        });
+    } else {
+        // Found — always enforce the correct password and master flag
+        employees.maintenance[masterIdx].password = 'siyabonga';
+        employees.maintenance[masterIdx].isMaster = true;
+        employees.maintenance[masterIdx].name     = employees.maintenance[masterIdx].name || 'Siya';
+    }
+
+    // STEP 4 — Save the employees object back to localStorage
+    localStorage.setItem('employees', JSON.stringify(employees));
+
+    // STEP 5 — If other core data keys don't exist yet, create them as empty arrays.
+    // This only runs once on a fresh browser — existing data is never overwritten.
+    if (!localStorage.getItem('medicareClean')) {
+        localStorage.setItem('patients',          JSON.stringify([]));
+        localStorage.setItem('ambulanceRequests', JSON.stringify([]));
+        localStorage.setItem('scheduledPickups',  JSON.stringify([]));
+        localStorage.setItem('appointments',      JSON.stringify([]));
+        localStorage.setItem('medicareClean', 'true'); // mark as done
+    }
+}
+
+// ── Tab / type switching ──────────────────────────────────────
+function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', (tab === 'login') === (i === 0)));
+    document.getElementById('loginForm').classList.toggle('active', tab === 'login');
+    document.getElementById('signupForm').classList.toggle('active', tab === 'signup');
+    hideAlerts();
+}
+
+function selectUserType(btn, type) {
+    document.querySelectorAll('.user-type-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedUserType = type;
+    const isEmp = type !== 'patient';
+    document.getElementById('employeeNotice').style.display = isEmp ? 'block' : 'none';
+    document.getElementById('usernameLabel').textContent = type === 'maintenance' ? 'Admin Username' : isEmp ? 'Employee ID' : 'SA ID Number';
+    document.getElementById('loginUsername').placeholder  = type === 'maintenance' ? 'Enter your admin username'
+        : isEmp ? 'Enter your Employee ID' : 'Enter your 13-digit SA ID';
+    hideAlerts();
+}
+
+// ── Login ─────────────────────────────────────────────────────
+function handleLogin(e) {
+    e.preventDefault();
+    const username  = document.getElementById('loginUsername').value.trim();
+    const password  = document.getElementById('loginPassword').value;
+    const employees = JSON.parse(localStorage.getItem('employees') || '{}');
+
+    if (selectedUserType === 'patient') {
+        const patients = JSON.parse(localStorage.getItem('patients') || '[]');
+        const p = patients.find(x => x.id === username && x.password === password);
+        if (p) { sessionStorage.setItem('currentUser', JSON.stringify({ ...p, type: 'patient' })); showSuccess('Login successful! Redirecting...'); setTimeout(() => { window.location.href = 'patient.html'; }, 900); }
+        else     showError('Incorrect SA ID or password.');
+        return;
+    }
+
+    const listMap     = { clerk:'clerks', ambulance:'ambulance', maintenance:'maintenance', maint_team:'maint_team' };
+    const redirectMap = { clerk:'clerk.html', ambulance:'ambulance.html', maintenance:'centerdesk.html', maint_team:'maintenance.html' };
+    const list = employees[listMap[selectedUserType]] || [];
+    const emp  = list.find(e => e.id === username && e.password === password);
+    if (emp) { sessionStorage.setItem('currentUser', JSON.stringify({ ...emp, type: selectedUserType })); showSuccess('Login successful! Redirecting...'); setTimeout(() => { window.location.href = redirectMap[selectedUserType]; }, 900); }
+    else       showError('Incorrect ID or password. Contact your administrator.');
+}
+
+// ── Sign up (patients only) ───────────────────────────────────
+function handleSignup(e) {
+    e.preventDefault();
+    const id      = document.getElementById('signupId').value.trim();
+    const name    = document.getElementById('signupName').value.trim();
+    const surname = document.getElementById('signupSurname').value.trim();
+    const phone   = document.getElementById('signupPhone').value.trim();
+    const city    = document.getElementById('signupCity').value.trim();
+    const pw      = document.getElementById('signupPassword').value;
+    const confirm = document.getElementById('signupConfirm').value;
+    if (id.length !== 13 || !/^\d+$/.test(id)) { showError('SA ID must be exactly 13 digits.'); return; }
+    if (pw !== confirm) { showError('Passwords do not match.'); return; }
+    if (pw.length < 6)  { showError('Password must be at least 6 characters.'); return; }
+    const patients = JSON.parse(localStorage.getItem('patients') || '[]');
+    if (patients.find(p => p.id === id)) { showError('An account with this SA ID already exists.'); return; }
+    patients.push({ id, name, surname, phone, city, password: pw, email: '', address: '', condition: 'To be assessed', reasonForVisit: 'New registration', status: 'Pending Assessment', nextPickup: null, ambulanceStatus: 'none', notifications: [{ id: 1, message: 'Welcome to MediCare Clinic! Your account is pending assessment.', read: false, time: 'Just now' }], medicalHistory: [], registeredAt: new Date().toISOString() });
+    localStorage.setItem('patients', JSON.stringify(patients));
+    showSuccess('Account created! You can now log in as Patient.');
+    setTimeout(() => switchTab('login'), 2000);
+}
+
+// ── Forgot password ───────────────────────────────────────────
+function openForgotModal() {
+    document.getElementById('forgotId').value = '';
+    document.getElementById('forgotRole').value = 'patient';
+    document.getElementById('forgotFields').style.display = 'block';
+    document.getElementById('forgotResult').style.display = 'none';
+    document.getElementById('forgotModal').classList.add('show');
+}
+function closeForgotModal() { document.getElementById('forgotModal').classList.remove('show'); }
+
+function handleForgot() {
+    const id   = document.getElementById('forgotId').value.trim();
+    const role = document.getElementById('forgotRole').value;
+    if (!id) { alert('Please enter your ID.'); return; }
+
+    let found = false, hint = '';
+    if (role === 'patient') {
+        const p = (JSON.parse(localStorage.getItem('patients') || '[]')).find(x => x.id === id);
+        if (p) { found = true; hint = `Account found for ${p.name} ${p.surname}. Please contact your clinic administrator to reset your password.`; }
+    } else {
+        const listMap  = { clerk:'clerks', ambulance:'ambulance', maint_team:'maint_team' };
+        const employees = JSON.parse(localStorage.getItem('employees') || '{}');
+        const emp = (employees[listMap[role]] || []).find(e => e.id === id);
+        if (emp) { found = true; hint = `Account found for ${emp.name}. Contact your System Administrator to reset your password from the Admin Dashboard.`; }
+    }
+
+    document.getElementById('forgotResult').style.display = 'block';
+    document.getElementById('forgotFields').style.display = 'none';
+    document.getElementById('forgotResult').innerHTML = found
+        ? `<div style="background:#d4edda;border:1px solid #c3e6cb;color:#155724;border-radius:9px;padding:14px;font-size:0.9rem;line-height:1.5">✅ ${hint}</div>`
+        : `<div style="background:#f8d7da;border:1px solid #f5c6cb;color:#721c24;border-radius:9px;padding:14px;font-size:0.9rem">❌ No account found with that ID. Please check your details or contact the administrator.</div>`;
+}
+
+// ── Helpers ───────────────────────────────────────────────────
+function showError(m)   { const e=document.getElementById('errorMsg');   e.textContent=m; e.style.display='block'; document.getElementById('successMsg').style.display='none'; }
+function showSuccess(m) { const e=document.getElementById('successMsg'); e.textContent=m; e.style.display='block'; document.getElementById('errorMsg').style.display='none'; }
+function hideAlerts()   { document.getElementById('errorMsg').style.display='none'; document.getElementById('successMsg').style.display='none'; }
+
+bootstrapDB();
+</script>
+</body>
+</html>

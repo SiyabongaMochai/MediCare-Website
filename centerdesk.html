@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - MediCare Clinic</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#0f0f1a;min-height:100vh;color:white}
+        /* NAV */
+        .navbar{background:linear-gradient(135deg,#6c5ce7,#a29bfe);padding:14px 28px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:200}
+        .navbar-brand{font-size:1.4rem;font-weight:700;display:flex;align-items:center;gap:10px}
+        .admin-badge{background:rgba(0,0,0,0.2);padding:5px 14px;border-radius:20px;font-size:0.82rem}
+        .logout-btn{background:rgba(0,0,0,0.2);border:none;color:white;padding:7px 16px;border-radius:18px;cursor:pointer;transition:background 0.2s}
+        .logout-btn:hover{background:rgba(0,0,0,0.4)}
+        /* SIDEBAR */
+        .sidebar{position:fixed;left:0;top:55px;width:240px;height:calc(100vh - 55px);background:#16162a;padding:18px 14px;overflow-y:auto;z-index:100;border-right:1px solid rgba(255,255,255,0.05)}
+        .nav-section{margin-bottom:22px}
+        .nav-section-title{color:#555;font-size:0.7rem;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px;padding-left:10px}
+        .nav-item{display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:10px;cursor:pointer;transition:all 0.2s;color:#b2bec3;margin-bottom:4px;font-size:0.91rem;user-select:none}
+        .nav-item:hover{background:rgba(108,92,231,0.15);color:white}
+        .nav-item.active{background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:white;font-weight:600}
+        /* MAIN */
+        .main{margin-left:240px;padding:28px;min-height:calc(100vh - 55px)}
+        .section{display:none}.section.active{display:block}
+        .page-header{margin-bottom:26px}
+        .page-header h1{font-size:1.75rem;margin-bottom:4px}
+        .page-header p{color:#74788d;font-size:0.92rem}
+        /* STATS */
+        .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:18px;margin-bottom:28px}
+        .stat-card{background:#1a1a2e;border-radius:14px;padding:22px;border:1px solid rgba(255,255,255,0.05);position:relative;overflow:hidden}
+        .stat-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px}
+        .sc-purple::before{background:#a29bfe}.sc-green::before{background:#00b894}
+        .sc-blue::before{background:#0984e3}.sc-red::before{background:#e63946}
+        .sc-yellow::before{background:#fdcb6e}.sc-teal::before{background:#57c5b6}
+        .stat-value{font-size:2.4rem;font-weight:700;margin-bottom:4px}
+        .stat-label{color:#74788d;font-size:0.87rem}
+        /* CARDS */
+        .card{background:#1a1a2e;border-radius:14px;border:1px solid rgba(255,255,255,0.05);margin-bottom:22px;overflow:hidden}
+        .card-header{padding:16px 22px;border-bottom:1px solid rgba(255,255,255,0.07);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+        .card-title{font-size:1.05rem;font-weight:600}
+        .card-body{padding:18px 22px}
+        /* TABLE */
+        .table-wrap{overflow-x:auto}
+        .data-table{width:100%;border-collapse:collapse}
+        .data-table th{background:rgba(255,255,255,0.04);padding:11px 14px;text-align:left;font-weight:600;color:#74788d;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap}
+        .data-table td{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.9rem;vertical-align:middle}
+        .data-table tbody tr:hover{background:rgba(255,255,255,0.03)}
+        .data-table tbody tr:last-child td{border-bottom:none}
+        /* SEARCH */
+        .search-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+        .search-input{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:white;padding:9px 14px;border-radius:9px;font-size:0.9rem;flex:1;min-width:180px}
+        .search-input::placeholder{color:#555}
+        .search-input:focus{outline:none;border-color:#6c5ce7}
+        .search-select{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:white;padding:9px 13px;border-radius:9px;font-size:0.9rem}
+        /* BUTTONS */
+        .btn{padding:8px 17px;border:none;border-radius:8px;cursor:pointer;font-size:0.85rem;font-weight:600;transition:all 0.2s}
+        .btn-primary{background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:white}
+        .btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(108,92,231,0.4)}
+        .btn-sm{padding:5px 11px;font-size:0.78rem;border-radius:7px}
+        .btn-edit{background:#fdcb6e;color:#2d3436}.btn-edit:hover{background:#ffeaa7}
+        .btn-delete{background:#e63946;color:white}.btn-delete:hover{background:#ff6b6b}
+        .btn-cancel{background:rgba(255,255,255,0.08);color:white;border:none;padding:10px 22px;border-radius:9px;cursor:pointer}
+        .btn-save{background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:white;border:none;padding:10px 22px;border-radius:9px;cursor:pointer;font-weight:600}
+        /* BADGES */
+        .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.73rem;font-weight:700}
+        .bg-green{background:rgba(0,184,148,0.18);color:#00b894;border:1px solid rgba(0,184,148,0.3)}
+        .bg-blue{background:rgba(9,132,227,0.18);color:#74b9ff;border:1px solid rgba(9,132,227,0.3)}
+        .bg-yellow{background:rgba(253,203,110,0.18);color:#fdcb6e;border:1px solid rgba(253,203,110,0.3)}
+        .bg-red{background:rgba(230,57,70,0.18);color:#ff7675;border:1px solid rgba(230,57,70,0.3)}
+        .bg-purple{background:rgba(108,92,231,0.18);color:#a29bfe;border:1px solid rgba(108,92,231,0.3)}
+        .bg-gold{background:rgba(255,215,0,0.18);color:#ffd700;border:1px solid rgba(255,215,0,0.35)}
+        /* QUICK ACTIONS */
+        .quick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px}
+        .quick-btn{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);color:white;padding:18px 12px;border-radius:13px;cursor:pointer;text-align:center;transition:all 0.2s}
+        .quick-btn:hover{background:rgba(108,92,231,0.15);border-color:rgba(108,92,231,0.35);transform:translateY(-2px)}
+        .quick-btn .qi{font-size:1.4rem;margin-bottom:7px;display:block}
+        .quick-btn strong{font-size:0.84rem;display:block}
+        /* LOGS */
+        .log-list{max-height:300px;overflow-y:auto}
+        .log-entry{padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;align-items:flex-start;gap:9px;font-size:0.83rem}
+        .log-entry:last-child{border-bottom:none}
+        .log-time{color:#6c5ce7;font-family:monospace;white-space:nowrap;font-size:0.78rem;flex-shrink:0}
+        .log-badge{padding:2px 7px;border-radius:4px;font-size:0.7rem;font-weight:700;white-space:nowrap;flex-shrink:0}
+        .lb-info{background:#0984e3}.lb-warning{background:#fdcb6e;color:#2d3436}.lb-error{background:#e63946}.lb-success{background:#00b894}
+        /* ADMIN CARD */
+        .admin-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:18px;display:flex;align-items:center;gap:16px;margin-bottom:12px;transition:background 0.2s}
+        .admin-card:hover{background:rgba(255,255,255,0.07)}
+        .admin-card.master{border-color:rgba(255,215,0,0.35);background:rgba(255,215,0,0.04)}
+        .admin-avatar{width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;background:rgba(108,92,231,0.25)}
+        .admin-avatar.gold{background:rgba(255,215,0,0.2)}
+        .admin-info{flex:1;min-width:0}
+        .admin-info h3{font-size:0.97rem;margin-bottom:3px}
+        .admin-info p{color:#74788d;font-size:0.8rem}
+        .admin-meta{display:flex;gap:7px;margin-top:5px;flex-wrap:wrap}
+        .admin-actions{display:flex;gap:7px;flex-shrink:0}
+        /* MODAL */
+        .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);z-index:3000;justify-content:center;align-items:center}
+        .modal.show{display:flex}
+        .modal-box{background:#1a1a2e;border-radius:18px;width:90%;max-width:520px;max-height:88vh;overflow-y:auto;border:1px solid rgba(255,255,255,0.1)}
+        .modal-head{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#1a1a2e;z-index:1}
+        .modal-head h3{font-size:1.1rem}
+        .modal-close{background:none;border:none;color:#74788d;font-size:1.4rem;cursor:pointer;line-height:1}
+        .modal-body{padding:22px 24px}
+        .modal-foot{padding:16px 24px;border-top:1px solid rgba(255,255,255,0.08);display:flex;justify-content:flex-end;gap:10px}
+        .form-group{margin-bottom:16px}
+        .form-group label{display:block;margin-bottom:6px;color:#b2bec3;font-size:0.85rem}
+        .form-group input,.form-group select{width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:white;padding:11px 13px;border-radius:9px;font-size:0.9rem;font-family:inherit;transition:border-color 0.2s}
+        .form-group input:focus,.form-group select:focus{outline:none;border-color:#6c5ce7}
+        .form-group input[readonly]{opacity:0.45;cursor:not-allowed}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+        /* TOAST */
+        .toast{position:fixed;bottom:22px;right:22px;background:#2d3436;color:white;padding:12px 18px;border-radius:12px;font-size:0.88rem;box-shadow:0 8px 24px rgba(0,0,0,0.35);transform:translateY(80px);opacity:0;transition:all 0.3s;z-index:9999;max-width:300px}
+        .toast.show{transform:translateY(0);opacity:1}
+        .toast.success{border-left:4px solid #00b894}.toast.error{border-left:4px solid #e63946}.toast.warning{border-left:4px solid #fdcb6e}
+        /* EMPTY */
+        .empty{text-align:center;padding:44px 20px;color:#555}
+        .empty .ei{font-size:2.4rem;margin-bottom:10px}
+        @media(max-width:768px){.sidebar{display:none}.main{margin-left:0}}
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="navbar-brand"><span>⚙️</span><span>MediCare Admin</span></div>
+    <div style="display:flex;align-items:center;gap:14px">
+        <span class="admin-badge" id="adminBadge">🔐 Administrator</span>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+</nav>
+
+<aside class="sidebar">
+    <div class="nav-section">
+        <div class="nav-section-title">Overview</div>
+        <div class="nav-item active" onclick="nav('dashboard',this)"><span>📊</span><span>Dashboard</span></div>
+    </div>
+    <div class="nav-section">
+        <div class="nav-section-title">Staff</div>
+        <div class="nav-item" onclick="nav('admins',this)"><span>👑</span><span>Administrators</span></div>
+        <div class="nav-item" onclick="nav('clerks',this)"><span>📋</span><span>Clerks</span></div>
+        <div class="nav-item" onclick="nav('ambulance',this)"><span>🚑</span><span>Ambulance Drivers</span></div>
+        <div class="nav-item" onclick="nav('maint_team',this)"><span>🔧</span><span>Maintenance Staff</span></div>
+    </div>
+    <div class="nav-section">
+        <div class="nav-section-title">Patients</div>
+        <div class="nav-item" onclick="nav('patients',this)"><span>👥</span><span>All Patients</span></div>
+        <div class="nav-item" onclick="nav('requests',this)"><span>📝</span><span>Ambulance Requests</span></div>
+        <div class="nav-item" onclick="nav('pickups',this)"><span>📅</span><span>Scheduled Pickups</span></div>
+    </div>
+    <div class="nav-section">
+        <div class="nav-section-title">System</div>
+        <div class="nav-item" onclick="nav('logs',this)"><span>📜</span><span>Activity Logs</span></div>
+    </div>
+</aside>
+
+<main class="main">
+
+    <!-- DASHBOARD -->
+    <div id="sec-dashboard" class="section active">
+        <div class="page-header"><h1 id="greetTitle">Dashboard</h1><p>System-wide overview and quick actions</p></div>
+        <div class="stats-grid">
+            <div class="stat-card sc-purple"><div class="stat-value" id="st-admins">0</div><div class="stat-label">Administrators</div></div>
+            <div class="stat-card sc-blue"><div class="stat-value" id="st-clerks">0</div><div class="stat-label">Clerks</div></div>
+            <div class="stat-card sc-red"><div class="stat-value" id="st-amb">0</div><div class="stat-label">Ambulance Drivers</div></div>
+            <div class="stat-card sc-teal"><div class="stat-value" id="st-maint">0</div><div class="stat-label">Maintenance Staff</div></div>
+            <div class="stat-card sc-green"><div class="stat-value" id="st-patients">0</div><div class="stat-label">Patients</div></div>
+            <div class="stat-card sc-yellow"><div class="stat-value" id="st-requests">0</div><div class="stat-label">Pending Requests</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px">
+            <div class="card">
+                <div class="card-header"><div class="card-title">⚡ Quick Actions</div></div>
+                <div class="card-body">
+                    <div class="quick-grid">
+                        <button class="quick-btn" onclick="nav('admins',null);setTimeout(()=>openAdd('maintenance'),100)"><span class="qi">👑</span><strong>Add Admin</strong></button>
+                        <button class="quick-btn" onclick="nav('clerks',null);setTimeout(()=>openAdd('clerks'),100)"><span class="qi">➕</span><strong>Add Clerk</strong></button>
+                        <button class="quick-btn" onclick="nav('ambulance',null);setTimeout(()=>openAdd('ambulance'),100)"><span class="qi">🚑</span><strong>Add Driver</strong></button>
+                        <button class="quick-btn" onclick="nav('maint_team',null);setTimeout(()=>openAdd('maint_team'),100)"><span class="qi">🔧</span><strong>Add Maintenance</strong></button>
+                        <button class="quick-btn" onclick="exportData()"><span class="qi">📤</span><strong>Export Data</strong></button>
+                        <button class="quick-btn" onclick="confirmReset()"><span class="qi">🗑</span><strong>Wipe All Data</strong></button>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><div class="card-title">📜 Recent Activity</div></div>
+                <div class="card-body"><div class="log-list" id="dashLogs"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMINISTRATORS -->
+    <div id="sec-admins" class="section">
+        <div class="page-header"><h1>Administrators</h1><p>Manage who has admin access to this dashboard</p></div>
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">👑 Admin Accounts</div>
+                <button class="btn btn-primary btn-sm" onclick="openAdd('maintenance')">+ Add Administrator</button>
+            </div>
+            <div class="card-body">
+                <div id="adminCards"></div>
+                <div class="table-wrap" style="margin-top:6px">
+                    <table class="data-table">
+                        <thead><tr><th>Username</th><th>Full Name</th><th>Email</th><th>Role</th><th>Password</th><th>Actions</th></tr></thead>
+                        <tbody id="adminsTbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CLERKS -->
+    <div id="sec-clerks" class="section">
+        <div class="page-header"><h1>Clerks</h1><p>Manage front-desk clerk accounts</p></div>
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">📋 All Clerks</div>
+                <button class="btn btn-primary btn-sm" onclick="openAdd('clerks')">+ Add Clerk</button>
+            </div>
+            <div class="card-body">
+                <div class="search-bar"><input class="search-input" id="clerkQ" placeholder="Search name, ID, email..." oninput="renderTable('clerks')"></div>
+                <div class="table-wrap">
+                    <table class="data-table"><thead><tr><th>Employee ID</th><th>Full Name</th><th>Email</th><th>Phone</th><th>Password</th><th>Actions</th></tr></thead>
+                    <tbody id="clerksTbody"></tbody></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AMBULANCE -->
+    <div id="sec-ambulance" class="section">
+        <div class="page-header"><h1>Ambulance Drivers</h1><p>Manage driver accounts and assignments</p></div>
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">🚑 All Drivers</div>
+                <button class="btn btn-primary btn-sm" onclick="openAdd('ambulance')">+ Add Driver</button>
+            </div>
+            <div class="card-body">
+                <div class="search-bar">
+                    <input class="search-input" id="ambQ" placeholder="Search name, ID, city..." oninput="renderTable('ambulance')">
+                    <select class="search-select" id="ambSF" onchange="renderTable('ambulance')">
+                        <option value="">All Statuses</option>
+                        <option value="available">Available</option><option value="on_duty">On Duty</option><option value="off_duty">Off Duty</option>
+                    </select>
+                </div>
+                <div class="table-wrap">
+                    <table class="data-table"><thead><tr><th>Employee ID</th><th>Full Name</th><th>City</th><th>Vehicle</th><th>Phone</th><th>Status</th><th>Password</th><th>Actions</th></tr></thead>
+                    <tbody id="ambulanceTbody"></tbody></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAINTENANCE STAFF -->
+    <div id="sec-maint_team" class="section">
+        <div class="page-header"><h1>Maintenance Staff</h1><p>Manage maintenance team members</p></div>
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">🔧 All Maintenance Workers</div>
+                <button class="btn btn-primary btn-sm" onclick="openAdd('maint_team')">+ Add Worker</button>
+            </div>
+            <div class="card-body">
+                <div class="search-bar">
+                    <input class="search-input" id="maintQ" placeholder="Search name, ID, dept, email..." oninput="renderTable('maint_team')">
+                    <select class="search-select" id="maintDF" onchange="renderTable('maint_team')">
+                        <option value="">All Departments</option>
+                        <option>IT Support</option><option>Facilities</option><option>Electrical</option>
+                        <option>Plumbing</option><option>Cleaning</option><option>General Maintenance</option>
+                    </select>
+                </div>
+                <div class="table-wrap">
+                    <table class="data-table"><thead><tr><th>Employee ID</th><th>Full Name</th><th>Department</th><th>Email</th><th>Phone</th><th>Password</th><th>Actions</th></tr></thead>
+                    <tbody id="maintTbody"></tbody></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PATIENTS -->
+    <div id="sec-patients" class="section">
+        <div class="page-header"><h1>Patients</h1><p>View and manage all registered patients</p></div>
+        <div class="card">
+            <div class="card-header"><div class="card-title">👥 All Patients</div></div>
+            <div class="card-body">
+                <div class="search-bar">
+                    <input class="search-input" id="patQ" placeholder="Search name, SA ID, city, condition..." oninput="renderTable('patients')">
+                    <select class="search-select" id="patSF" onchange="renderTable('patients')">
+                        <option value="">All Statuses</option>
+                        <option>Active</option><option>Pending Pickup</option><option>In Treatment</option>
+                        <option>Stable</option><option>Critical</option><option>Pending Assessment</option>
+                    </select>
+                </div>
+                <div class="table-wrap">
+                    <table class="data-table"><thead><tr><th>SA ID</th><th>Name</th><th>Condition</th><th>Status</th><th>City</th><th>Phone</th><th>Actions</th></tr></thead>
+                    <tbody id="patientsTbody"></tbody></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- REQUESTS -->
+    <div id="sec-requests" class="section">
+        <div class="page-header"><h1>Ambulance Requests</h1><p>All emergency and service requests</p></div>
+        <div class="card">
+            <div class="card-header"><div class="card-title">📝 All Requests</div></div>
+            <div class="card-body">
+                <div class="search-bar"><input class="search-input" id="reqQ" placeholder="Search patient, city, status..." oninput="renderTable('requests')"></div>
+                <div class="table-wrap">
+                    <table class="data-table"><thead><tr><th>ID</th><th>Patient</th><th>City</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody id="requestsTbody"></tbody></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PICKUPS -->
+    <div id="sec-pickups" class="section">
+        <div class="page-header"><h1>Scheduled Pickups</h1><p>Planned patient transport</p></div>
+        <div class="card">
+            <div class="card-header"><div class="card-title">📅 All Pickups</div></div>
+            <div class="card-body">
+                <div class="table-wrap">
+                    <table class="data-table"><thead><tr><th>ID</th><th>Patient</th><th>Date</th><th>Destination</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody id="pickupsTbody"></tbody></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOGS -->
+    <div id="sec-logs" class="section">
+        <div class="page-header"><h1>Activity Logs</h1><p>Full audit trail of all admin actions</p></div>
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">📜 System Logs</div>
+                <button class="btn btn-sm btn-delete" onclick="clearLogs()">Clear Logs</button>
+            </div>
+            <div class="card-body"><div class="log-list" id="fullLogs" style="max-height:600px"></div></div>
+        </div>
+    </div>
+
+</main>
+
+<!-- MODAL -->
+<div class="modal" id="editModal">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h3 id="modalTitle">Edit Record</h3>
+            <button class="modal-close" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group" id="fIdGroup">
+                <label id="fIdLabel">Employee ID</label>
+                <input type="text" id="fId" placeholder="e.g. CLK001">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label id="fNameLabel">Full Name</label>
+                    <input type="text" id="fName" placeholder="Full name">
+                </div>
+                <div class="form-group" id="fSurnameGroup" style="display:none">
+                    <label>Surname</label>
+                    <input type="text" id="fSurname" placeholder="Surname">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="text" id="fPassword" placeholder="Login password">
+            </div>
+            <!-- Shared contact fields -->
+            <div id="contactFields" style="display:none">
+                <div class="form-row">
+                    <div class="form-group"><label>Email</label><input type="email" id="fEmail" placeholder="email@medicare.co.za"></div>
+                    <div class="form-group"><label>Phone</label><input type="text" id="fPhone" placeholder="0841234567"></div>
+                </div>
+            </div>
+            <!-- Admin-only -->
+            <div id="adminFields" style="display:none">
+                <div class="form-group"><label>Email</label><input type="email" id="fAdminEmail" placeholder="admin@yourclinic.com"></div>
+                <div class="form-group"><label>Note</label><p style="color:#74788d;font-size:0.82rem;margin-top:4px">This admin will be able to log in at the Admin login type and access this full dashboard. Only the Master Admin can delete other admin accounts.</p></div>
+            </div>
+            <!-- Ambulance-only -->
+            <div id="ambFields" style="display:none">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Assigned City</label>
+                        <select id="fCity">
+                            <option>Johannesburg</option><option>Pretoria</option><option>Cape Town</option>
+                            <option>Durban</option><option>Port Elizabeth</option><option>Bloemfontein</option>
+                            <option>Nelspruit</option><option>Polokwane</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="fAmbStatus">
+                            <option value="available">Available</option>
+                            <option value="on_duty">On Duty</option>
+                            <option value="off_duty">Off Duty</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Vehicle Plate</label><input type="text" id="fVehicle" placeholder="e.g. JHB-001"></div>
+                    <div class="form-group"><label>Phone</label><input type="text" id="fAmbPhone" placeholder="0831234567"></div>
+                </div>
+            </div>
+            <!-- Maintenance-only -->
+            <div id="maintFields" style="display:none">
+                <div class="form-group">
+                    <label>Department</label>
+                    <select id="fDept">
+                        <option>IT Support</option><option>Facilities</option><option>Electrical</option>
+                        <option>Plumbing</option><option>Cleaning</option><option>General Maintenance</option>
+                    </select>
+                </div>
+            </div>
+            <!-- Patient-only -->
+            <div id="patientFields" style="display:none">
+                <div class="form-row">
+                    <div class="form-group"><label>Condition</label><input type="text" id="fCondition" placeholder="Medical condition"></div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="fPatStatus">
+                            <option>Active</option><option>Pending Pickup</option><option>In Treatment</option>
+                            <option>Stable</option><option>Critical</option><option>Pending Assessment</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>City</label><input type="text" id="fPatCity"></div>
+                    <div class="form-group"><label>Phone</label><input type="text" id="fPatPhone"></div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+            <button class="btn-save" onclick="saveRecord()">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Auth ──────────────────────────────────────────────────────
+const sess = sessionStorage.getItem('currentUser');
+if (!sess) { window.location.href = 'login.html'; }
+const CU = JSON.parse(sess || '{}');
+if (CU.type !== 'maintenance') { window.location.href = 'login.html'; }
+const isMaster = CU.isMaster === true;
+document.getElementById('adminBadge').textContent = '🔐 ' + (isMaster ? '👑 Master Admin — ' : 'Admin — ') + (CU.name || CU.id);
+
+// ── State ─────────────────────────────────────────────────────
+let patients  = [];
+let employees = {};
+let requests  = [];
+let pickups   = [];
+// Modal
+let mType = '', mMode = '', mRecordId = '';
+
+// ── Data I/O ──────────────────────────────────────────────────
+function loadData() {
+    patients  = JSON.parse(localStorage.getItem('patients')          || '[]');
+    employees = JSON.parse(localStorage.getItem('employees')         || '{}');
+    requests  = JSON.parse(localStorage.getItem('ambulanceRequests') || '[]');
+    pickups   = JSON.parse(localStorage.getItem('scheduledPickups')  || '[]');
+    if (!employees.maintenance) employees.maintenance = [];
+    if (!employees.clerks)      employees.clerks      = [];
+    if (!employees.ambulance)   employees.ambulance   = [];
+    if (!employees.maint_team)  employees.maint_team  = [];
+}
+function saveEmps()  { localStorage.setItem('employees', JSON.stringify(employees)); }
+function savePats()  { localStorage.setItem('patients',  JSON.stringify(patients));  }
+
+// ── Init ──────────────────────────────────────────────────────
+function init() {
+    loadData();
+    updateStats();
+    renderDashLogs();
+    // Greet
+    const h = new Date().getHours();
+    const gr = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+    document.getElementById('greetTitle').textContent = gr + ', ' + (CU.name || CU.id) + ' 👋';
+    addLog('success', (isMaster ? '👑 Master Admin' : 'Admin') + ' ' + (CU.name||CU.id) + ' logged in');
+}
+
+// ── Stats ─────────────────────────────────────────────────────
+function updateStats() {
+    loadData();
+    document.getElementById('st-admins').textContent   = employees.maintenance.length;
+    document.getElementById('st-clerks').textContent   = employees.clerks.length;
+    document.getElementById('st-amb').textContent      = employees.ambulance.length;
+    document.getElementById('st-maint').textContent    = employees.maint_team.length;
+    document.getElementById('st-patients').textContent = patients.length;
+    document.getElementById('st-requests').textContent = requests.filter(r => r.status === 'pending').length;
+}
+
+// ── Navigation ────────────────────────────────────────────────
+function nav(name, el) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('sec-' + name).classList.add('active');
+    if (el) el.classList.add('active');
+    else {
+        // highlight via name matching
+        document.querySelectorAll('.nav-item').forEach(n => {
+            if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'" + name + "'")) n.classList.add('active');
+        });
+    }
+    const renders = { admins:'admins', clerks:'clerks', ambulance:'ambulance', maint_team:'maint_team', patients:'patients', requests:'requests', pickups:'pickups', logs:'fullLogs' };
+    if (renders[name]) renderTable(name);
+    if (name === 'logs') renderFullLogs();
+}
+
+// ── Render Tables ─────────────────────────────────────────────
+function statusBadge(s, map) {
+    const cls = map[s] || 'bg-yellow';
+    return `<span class="badge ${cls}">${s||'—'}</span>`;
+}
+
+function renderTable(type) {
+    loadData();
+
+    if (type === 'admins') {
+        const list = employees.maintenance || [];
+        // Cards
+        document.getElementById('adminCards').innerHTML = list.map(r => {
+            const isMasterRec = r.isMaster === true;
+            return `
+            <div class="admin-card ${isMasterRec ? 'master' : ''}">
+                <div class="admin-avatar ${isMasterRec ? 'gold' : ''}">${isMasterRec ? '👑' : '⚙️'}</div>
+                <div class="admin-info">
+                    <h3>${esc(r.name || r.id)} ${isMasterRec ? '<span class="badge bg-gold">Master Admin</span>' : '<span class="badge bg-purple">Admin</span>'}</h3>
+                    <p>Username: <strong>${esc(r.id)}</strong> &nbsp;|&nbsp; ${esc(r.email||'No email set')}</p>
+                    <div class="admin-meta">
+                        <span class="badge bg-blue">Login: ${esc(r.id)}</span>
+                        <span class="badge bg-yellow">Pass: ${esc(r.password)}</span>
+                    </div>
+                </div>
+                <div class="admin-actions">
+                    <button class="btn btn-edit btn-sm" onclick="openEdit('maintenance','${esc(r.id)}')">✏️ Edit</button>
+                    ${(!isMasterRec && isMaster) ? `<button class="btn btn-delete btn-sm" onclick="deleteRecord('maintenance','${esc(r.id)}')">🗑</button>` : ''}
+                </div>
+            </div>`;
+        }).join('') || '<div class="empty"><div class="ei">👑</div><p>No admins yet</p></div>';
+
+        // Table
+        document.getElementById('adminsTbody').innerHTML = list.length === 0
+            ? `<tr><td colspan="6" style="text-align:center;color:#555;padding:36px">No admins found</td></tr>`
+            : list.map(r => {
+                const isMasterRec = r.isMaster === true;
+                return `<tr>
+                    <td><code style="color:#a29bfe">${esc(r.id)}</code></td>
+                    <td><strong>${esc(r.name||r.id)}</strong></td>
+                    <td>${esc(r.email||'—')}</td>
+                    <td>${isMasterRec ? '<span class="badge bg-gold">Master</span>' : '<span class="badge bg-purple">Admin</span>'}</td>
+                    <td><code style="color:#fdcb6e;font-size:0.8rem">${esc(r.password)}</code></td>
+                    <td>
+                        <button class="btn btn-edit btn-sm" onclick="openEdit('maintenance','${esc(r.id)}')">✏️ Edit</button>
+                        ${(!isMasterRec && isMaster) ? `<button class="btn btn-delete btn-sm" style="margin-left:5px" onclick="deleteRecord('maintenance','${esc(r.id)}')">🗑</button>` : ''}
+                    </td>
+                </tr>`;
+            }).join('');
+        return;
+    }
+
+    if (type === 'clerks') {
+        const q = (document.getElementById('clerkQ')?.value||'').toLowerCase();
+        const data = (employees.clerks||[]).filter(r => !q || r.id.toLowerCase().includes(q) || r.name.toLowerCase().includes(q) || (r.email||'').toLowerCase().includes(q));
+        document.getElementById('clerksTbody').innerHTML = data.length === 0
+            ? `<tr><td colspan="6" style="text-align:center;color:#555;padding:36px">No clerks found. Click "+ Add Clerk" to get started.</td></tr>`
+            : data.map(r => `<tr>
+                <td><code style="color:#a29bfe">${esc(r.id)}</code></td>
+                <td><strong>${esc(r.name)}</strong></td>
+                <td>${esc(r.email||'—')}</td>
+                <td>${esc(r.phone||'—')}</td>
+                <td><code style="color:#fdcb6e;font-size:0.8rem">${esc(r.password)}</code></td>
+                <td>
+                    <button class="btn btn-edit btn-sm" onclick="openEdit('clerks','${esc(r.id)}')">✏️ Edit</button>
+                    <button class="btn btn-delete btn-sm" style="margin-left:5px" onclick="deleteRecord('clerks','${esc(r.id)}')">🗑</button>
+                </td></tr>`).join('');
+        return;
+    }
+
+    if (type === 'ambulance') {
+        const q  = (document.getElementById('ambQ')?.value||'').toLowerCase();
+        const sf = (document.getElementById('ambSF')?.value||'').toLowerCase();
+        const data = (employees.ambulance||[]).filter(r => {
+            const mq = !q || r.id.toLowerCase().includes(q) || r.name.toLowerCase().includes(q) || (r.city||'').toLowerCase().includes(q);
+            const ms = !sf || (r.status||'').toLowerCase() === sf;
+            return mq && ms;
+        });
+        const smap = { available:'bg-green', on_duty:'bg-blue', off_duty:'bg-yellow' };
+        document.getElementById('ambulanceTbody').innerHTML = data.length === 0
+            ? `<tr><td colspan="8" style="text-align:center;color:#555;padding:36px">No drivers found. Click "+ Add Driver" to get started.</td></tr>`
+            : data.map(r => `<tr>
+                <td><code style="color:#a29bfe">${esc(r.id)}</code></td>
+                <td><strong>${esc(r.name)}</strong></td>
+                <td>${esc(r.city||'—')}</td>
+                <td>${esc(r.vehicle||'—')}</td>
+                <td>${esc(r.phone||'—')}</td>
+                <td>${statusBadge(r.status||'available', smap)}</td>
+                <td><code style="color:#fdcb6e;font-size:0.8rem">${esc(r.password)}</code></td>
+                <td>
+                    <button class="btn btn-edit btn-sm" onclick="openEdit('ambulance','${esc(r.id)}')">✏️ Edit</button>
+                    <button class="btn btn-delete btn-sm" style="margin-left:5px" onclick="deleteRecord('ambulance','${esc(r.id)}')">🗑</button>
+                </td></tr>`).join('');
+        return;
+    }
+
+    if (type === 'maint_team') {
+        const q  = (document.getElementById('maintQ')?.value||'').toLowerCase();
+        const df = (document.getElementById('maintDF')?.value||'').toLowerCase();
+        const data = (employees.maint_team||[]).filter(r => {
+            const mq = !q || r.id.toLowerCase().includes(q) || r.name.toLowerCase().includes(q) || (r.email||'').toLowerCase().includes(q) || (r.department||'').toLowerCase().includes(q);
+            const md = !df || (r.department||'').toLowerCase() === df;
+            return mq && md;
+        });
+        document.getElementById('maintTbody').innerHTML = data.length === 0
+            ? `<tr><td colspan="7" style="text-align:center;color:#555;padding:36px">No maintenance staff found. Click "+ Add Worker" to get started.</td></tr>`
+            : data.map(r => `<tr>
+                <td><code style="color:#a29bfe">${esc(r.id)}</code></td>
+                <td><strong>${esc(r.name)}</strong></td>
+                <td><span class="badge bg-purple">${esc(r.department||'—')}</span></td>
+                <td>${esc(r.email||'—')}</td>
+                <td>${esc(r.phone||'—')}</td>
+                <td><code style="color:#fdcb6e;font-size:0.8rem">${esc(r.password)}</code></td>
+                <td>
+                    <button class="btn btn-edit btn-sm" onclick="openEdit('maint_team','${esc(r.id)}')">✏️ Edit</button>
+                    <button class="btn btn-delete btn-sm" style="margin-left:5px" onclick="deleteRecord('maint_team','${esc(r.id)}')">🗑</button>
+                </td></tr>`).join('');
+        return;
+    }
+
+    if (type === 'patients') {
+        const q  = (document.getElementById('patQ')?.value||'').toLowerCase();
+        const sf = document.getElementById('patSF')?.value||'';
+        const data = patients.filter(r => {
+            const full = (r.name+' '+(r.surname||'')).toLowerCase();
+            const mq = !q || r.id.toLowerCase().includes(q) || full.includes(q) || (r.city||'').toLowerCase().includes(q) || (r.condition||'').toLowerCase().includes(q);
+            const ms = !sf || r.status === sf;
+            return mq && ms;
+        });
+        const smap = { Active:'bg-green', Critical:'bg-red', Stable:'bg-blue', 'Pending Pickup':'bg-yellow', 'In Treatment':'bg-purple', 'Pending Assessment':'bg-yellow' };
+        document.getElementById('patientsTbody').innerHTML = data.length === 0
+            ? `<tr><td colspan="7" style="text-align:center;color:#555;padding:36px">No patients registered yet. Patients register themselves on the login page.</td></tr>`
+            : data.map(r => `<tr>
+                <td><code style="color:#a29bfe;font-size:0.78rem">${esc(r.id)}</code></td>
+                <td><strong>${esc(r.name)} ${esc(r.surname||'')}</strong></td>
+                <td>${esc(r.condition||'—')}</td>
+                <td>${statusBadge(r.status, smap)}</td>
+                <td>${esc(r.city||'—')}</td>
+                <td>${esc(r.phone||'—')}</td>
+                <td>
+                    <button class="btn btn-edit btn-sm" onclick="openEdit('patients','${esc(r.id)}')">✏️ Edit</button>
+                    <button class="btn btn-delete btn-sm" style="margin-left:5px" onclick="deleteRecord('patients','${esc(r.id)}')">🗑</button>
+                </td></tr>`).join('');
+        return;
+    }
+
+    if (type === 'requests') {
+        const q = (document.getElementById('reqQ')?.value||'').toLowerCase();
+        const data = requests.filter(r => !q || (r.patientName||'').toLowerCase().includes(q) || (r.city||'').toLowerCase().includes(q) || (r.status||'').toLowerCase().includes(q));
+        const smap = { pending:'bg-yellow', accepted:'bg-blue', completed:'bg-green', rejected:'bg-red' };
+        document.getElementById('requestsTbody').innerHTML = data.length === 0
+            ? `<tr><td colspan="6" style="text-align:center;color:#555;padding:36px">No ambulance requests on record</td></tr>`
+            : data.map(r => `<tr>
+                <td><code style="color:#a29bfe">${esc(r.id)}</code></td>
+                <td>${esc(r.patientName||'—')}</td>
+                <td>${esc(r.city||'—')}</td>
+                <td>${esc(r.type||'—')}</td>
+                <td>${statusBadge(r.status, smap)}</td>
+                <td><button class="btn btn-delete btn-sm" onclick="deleteRecord('requests','${esc(r.id)}')">🗑</button></td>
+                </tr>`).join('');
+        return;
+    }
+
+    if (type === 'pickups') {
+        const smap = { scheduled:'bg-blue', completed:'bg-green', cancelled:'bg-red' };
+        document.getElementById('pickupsTbody').innerHTML = pickups.length === 0
+            ? `<tr><td colspan="6" style="text-align:center;color:#555;padding:36px">No scheduled pickups</td></tr>`
+            : pickups.map(r => `<tr>
+                <td><code style="color:#a29bfe">${esc(r.id)}</code></td>
+                <td>${esc(r.patientName||'—')}</td>
+                <td>${esc(r.scheduledDate||'—')}</td>
+                <td>${esc(r.destination||'—')}</td>
+                <td>${statusBadge(r.status, smap)}</td>
+                <td><button class="btn btn-delete btn-sm" onclick="deleteRecord('pickups','${esc(r.id)}')">🗑</button></td>
+                </tr>`).join('');
+        return;
+    }
+}
+
+// ── Modal: set visible fields ─────────────────────────────────
+function setFields(type) {
+    const S = (id,v) => { const el=document.getElementById(id); if(el) el.style.display=v?'block':'none'; };
+    S('fSurnameGroup',   type==='patients');
+    S('contactFields',   type==='clerks' || type==='maint_team');
+    S('adminFields',     type==='maintenance');
+    S('ambFields',       type==='ambulance');
+    S('maintFields',     type==='maint_team');
+    S('patientFields',   type==='patients');
+}
+
+function clearFields() {
+    ['fId','fName','fSurname','fPassword','fEmail','fPhone','fAmbPhone','fVehicle','fCondition','fPatCity','fPatPhone','fAdminEmail'].forEach(id => {
+        const el = document.getElementById(id); if(el) el.value='';
+    });
+}
+
+function openAdd(type) {
+    loadData();
+    mType=''; mMode='add'; mRecordId=''; mType=type;
+    clearFields();
+    const titles = { maintenance:'Add New Administrator', clerks:'Add New Clerk', ambulance:'Add Ambulance Driver', maint_team:'Add Maintenance Worker' };
+    const phs    = { maintenance:'e.g. john_doe', clerks:'e.g. CLK001', ambulance:'e.g. AMB001', maint_team:'e.g. MNT001' };
+    const pws    = { maintenance:'', clerks:'', ambulance:'', maint_team:'' };
+    document.getElementById('modalTitle').textContent  = titles[type]||'Add Record';
+    document.getElementById('fIdLabel').textContent    = type==='maintenance' ? 'Username (used to login)' : 'Employee ID';
+    document.getElementById('fNameLabel').textContent  = 'Full Name';
+    document.getElementById('fId').readOnly            = false;
+    document.getElementById('fId').placeholder         = phs[type]||'ID';
+    document.getElementById('fPassword').value         = pws[type]||'';
+    setFields(type);
+    document.getElementById('editModal').classList.add('show');
+}
+
+function openEdit(type, id) {
+    loadData();
+    mType=type; mMode='edit'; mRecordId=id;
+    clearFields();
+    const titles = { maintenance:'Edit Administrator', clerks:'Edit Clerk', ambulance:'Edit Driver', maint_team:'Edit Maintenance Worker', patients:'Edit Patient' };
+    document.getElementById('modalTitle').textContent = titles[type]||'Edit Record';
+    document.getElementById('fId').readOnly           = true;
+
+    if (type === 'patients') {
+        const rec = patients.find(p => p.id === id);
+        if (!rec) { showToast('Patient not found','error'); return; }
+        document.getElementById('fIdLabel').textContent  = 'SA ID';
+        document.getElementById('fNameLabel').textContent= 'First Name';
+        document.getElementById('fId').value       = rec.id;
+        document.getElementById('fName').value     = rec.name||'';
+        document.getElementById('fSurname').value  = rec.surname||'';
+        document.getElementById('fPassword').value = rec.password||'';
+        document.getElementById('fCondition').value= rec.condition||'';
+        document.getElementById('fPatStatus').value= rec.status||'Active';
+        document.getElementById('fPatCity').value  = rec.city||'';
+        document.getElementById('fPatPhone').value = rec.phone||'';
+    } else {
+        const list = employees[type]||[];
+        const rec  = list.find(e => e.id === id);
+        if (!rec) { showToast('Record not found','error'); return; }
+        document.getElementById('fIdLabel').textContent  = type==='maintenance' ? 'Username' : 'Employee ID';
+        document.getElementById('fNameLabel').textContent= 'Full Name';
+        document.getElementById('fId').value       = rec.id;
+        document.getElementById('fName').value     = rec.name||'';
+        document.getElementById('fPassword').value = rec.password||'';
+        if (type==='maintenance') { document.getElementById('fAdminEmail').value = rec.email||''; }
+        if (type==='clerks')     { document.getElementById('fEmail').value=rec.email||''; document.getElementById('fPhone').value=rec.phone||''; }
+        if (type==='ambulance')  { document.getElementById('fCity').value=rec.city||'Johannesburg'; document.getElementById('fAmbStatus').value=rec.status||'available'; document.getElementById('fVehicle').value=rec.vehicle||''; document.getElementById('fAmbPhone').value=rec.phone||''; }
+        if (type==='maint_team') { document.getElementById('fEmail').value=rec.email||''; document.getElementById('fPhone').value=rec.phone||''; document.getElementById('fDept').value=rec.department||'IT Support'; }
+    }
+
+    setFields(type);
+    document.getElementById('editModal').classList.add('show');
+}
+
+function closeModal() { document.getElementById('editModal').classList.remove('show'); }
+
+function saveRecord() {
+    const type = mType;
+    const mode = mMode;
+    const id   = document.getElementById('fId').value.trim();
+    const name = document.getElementById('fName').value.trim();
+    const pw   = document.getElementById('fPassword').value.trim();
+    if (!name) { showToast('Name is required','error'); return; }
+
+    if (type === 'patients') {
+        const idx = patients.findIndex(p => p.id === mRecordId);
+        if (idx===-1) { showToast('Patient not found','error'); return; }
+        patients[idx].name      = name;
+        patients[idx].surname   = document.getElementById('fSurname').value.trim();
+        patients[idx].password  = pw;
+        patients[idx].condition = document.getElementById('fCondition').value.trim();
+        patients[idx].status    = document.getElementById('fPatStatus').value;
+        patients[idx].city      = document.getElementById('fPatCity').value.trim();
+        patients[idx].phone     = document.getElementById('fPatPhone').value.trim();
+        savePats();
+        addLog('success', `Patient "${name}" (${mRecordId}) updated by ${CU.name||CU.id}`);
+        showToast('Patient updated!','success');
+        closeModal(); updateStats(); renderTable('patients'); return;
+    }
+
+    if (!employees[type]) employees[type]=[];
+
+    if (mode === 'add') {
+        if (!id) { showToast('ID / Username is required','error'); return; }
+        if (employees[type].find(e => e.id === id)) { showToast('An account with this ID already exists','error'); return; }
+        const rec = { id, name, password: pw };
+        if (type==='maintenance') { rec.email=document.getElementById('fAdminEmail').value.trim(); rec.isMaster=false; }
+        if (type==='clerks')     { rec.email=document.getElementById('fEmail').value.trim(); rec.phone=document.getElementById('fPhone').value.trim(); }
+        if (type==='ambulance')  { rec.city=document.getElementById('fCity').value; rec.status=document.getElementById('fAmbStatus').value; rec.vehicle=document.getElementById('fVehicle').value.trim(); rec.phone=document.getElementById('fAmbPhone').value.trim(); }
+        if (type==='maint_team') { rec.email=document.getElementById('fEmail').value.trim(); rec.phone=document.getElementById('fPhone').value.trim(); rec.department=document.getElementById('fDept').value; }
+        employees[type].push(rec);
+        addLog('success', `New ${type} added: ${name} (${id}) by ${CU.name||CU.id}`);
+        showToast(name + ' added successfully!','success');
+    } else {
+        const idx = employees[type].findIndex(e => e.id === mRecordId);
+        if (idx===-1) { showToast('Record not found','error'); return; }
+        employees[type][idx].name     = name;
+        employees[type][idx].password = pw;
+        if (type==='maintenance') { employees[type][idx].email = document.getElementById('fAdminEmail').value.trim(); }
+        if (type==='clerks')     { employees[type][idx].email=document.getElementById('fEmail').value.trim(); employees[type][idx].phone=document.getElementById('fPhone').value.trim(); }
+        if (type==='ambulance')  { employees[type][idx].city=document.getElementById('fCity').value; employees[type][idx].status=document.getElementById('fAmbStatus').value; employees[type][idx].vehicle=document.getElementById('fVehicle').value.trim(); employees[type][idx].phone=document.getElementById('fAmbPhone').value.trim(); }
+        if (type==='maint_team') { employees[type][idx].email=document.getElementById('fEmail').value.trim(); employees[type][idx].phone=document.getElementById('fPhone').value.trim(); employees[type][idx].department=document.getElementById('fDept').value; }
+        addLog('success', `${type} "${name}" (${mRecordId}) updated by ${CU.name||CU.id}`);
+        showToast(name + ' updated!','success');
+    }
+
+    saveEmps();
+    closeModal();
+    updateStats();
+    renderTable(type);
+}
+
+// ── Delete ────────────────────────────────────────────────────
+function deleteRecord(type, id) {
+    // Protect master admin
+    if (type === 'maintenance') {
+        loadData();
+        const target = (employees.maintenance || []).find(a => a.id === id);
+        if (target?.isMaster) { showToast('The master admin account cannot be deleted','error'); return; }
+        if (!isMaster) { showToast('Only the Master Admin can delete admin accounts','error'); return; }
+    }
+    if (!confirm('Delete record "' + id + '"? This cannot be undone.')) return;
+    loadData();
+    if (type==='patients')   { patients=patients.filter(p=>p.id!==id); savePats(); }
+    else if (type==='requests') { requests=requests.filter(r=>r.id!==id); localStorage.setItem('ambulanceRequests',JSON.stringify(requests)); }
+    else if (type==='pickups')  { pickups=pickups.filter(p=>p.id!==id);   localStorage.setItem('scheduledPickups', JSON.stringify(pickups)); }
+    else if (employees[type])   { employees[type]=employees[type].filter(e=>e.id!==id); saveEmps(); }
+    addLog('warning', `Record ${id} (${type}) deleted by ${CU.name||CU.id}`);
+    showToast('Record deleted','warning');
+    updateStats();
+    renderTable(type);
+}
+
+// ── Logs ──────────────────────────────────────────────────────
+function getLogs() { return JSON.parse(localStorage.getItem('adminLogs')||'[]'); }
+function addLog(type, message) {
+    const logs = getLogs();
+    logs.unshift({ time: new Date().toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit',second:'2-digit'}), date: new Date().toLocaleDateString('en-ZA'), type, message });
+    localStorage.setItem('adminLogs', JSON.stringify(logs.slice(0,300)));
+    renderDashLogs();
+}
+function renderDashLogs() {
+    const logs = getLogs().slice(0,8);
+    const el = document.getElementById('dashLogs');
+    if (!el) return;
+    el.innerHTML = logs.length===0 ? `<div style="color:#555;text-align:center;padding:20px">No activity yet</div>`
+        : logs.map(l=>`<div class="log-entry"><span class="log-time">${l.time}</span><span class="log-badge lb-${l.type}">${l.type.toUpperCase()}</span><span>${esc(l.message)}</span></div>`).join('');
+}
+function renderFullLogs() {
+    const logs = getLogs();
+    document.getElementById('fullLogs').innerHTML = logs.length===0 ? `<div style="color:#555;text-align:center;padding:44px">No logs yet</div>`
+        : logs.map(l=>`<div class="log-entry"><span class="log-time">${l.date} ${l.time}</span><span class="log-badge lb-${l.type}">${l.type.toUpperCase()}</span><span>${esc(l.message)}</span></div>`).join('');
+}
+function clearLogs() {
+    if (!confirm('Clear all logs?')) return;
+    localStorage.removeItem('adminLogs');
+    renderFullLogs(); renderDashLogs();
+    showToast('Logs cleared');
+}
+
+// ── Export / Reset ────────────────────────────────────────────
+function exportData() {
+    loadData();
+    const blob = new Blob([JSON.stringify({ patients, employees, ambulanceRequests:requests, scheduledPickups:pickups, exportDate:new Date().toISOString() },null,2)],{type:'application/json'});
+    const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='medicare_export_'+new Date().toISOString().split('T')[0]+'.json'; a.click(); URL.revokeObjectURL(a.href);
+    addLog('info',`Full data export by ${CU.name||CU.id}`);
+    showToast('Data exported!','success');
+}
+
+function confirmReset() {
+    if (!isMaster) { showToast('Only the Master Admin can wipe data','error'); return; }
+    if (!confirm('⚠️ DANGER: This will permanently delete ALL patients, staff, requests, and logs. The default master admin (siya) will remain.\n\nAre you absolutely sure?')) return;
+    if (!confirm('Last chance — this CANNOT be undone. Wipe all data?')) return;
+    ['patients','ambulanceRequests','scheduledPickups','appointments',
+     'adminLogs','maintTasks','maintInventory','maintLog','medicareClean'].forEach(k => localStorage.removeItem(k));
+    // Preserve the current logged-in master, then restore default
+    const master = { id: CU.id, name: CU.name, password: CU.password, email: CU.email || '', isMaster: true };
+    localStorage.setItem('employees', JSON.stringify({
+        maintenance: [master], clerks: [], ambulance: [], maint_team: []
+    }));
+    showToast('All data wiped. Reloading...','warning');
+    setTimeout(() => location.reload(), 1500);
+}
+
+function logout() { sessionStorage.removeItem('currentUser'); window.location.href='login.html'; }
+
+// ── Escape ────────────────────────────────────────────────────
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+// ── Toast ─────────────────────────────────────────────────────
+function showToast(msg, type='') {
+    const t=document.getElementById('toast'); t.textContent=msg; t.className='toast '+type; t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+init();
+</script>
+</body>
+</html>

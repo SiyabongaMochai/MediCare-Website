@@ -1,0 +1,1164 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard - MediCare Clinic</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+            background: #f0f4f8;
+            min-height: 100vh
+        }
+
+        .navbar {
+            background: linear-gradient(135deg,#1a5f7a,#159895);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.15)
+        }
+
+        .navbar-brand {
+            font-size: 1.4rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px
+        }
+
+        .notif-bell {
+            position: relative;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 8px;
+            border-radius: 50%;
+            transition: background 0.3s
+        }
+
+            .notif-bell:hover {
+                background: rgba(255,255,255,0.15)
+            }
+
+        .notif-badge {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            background: #ff4757;
+            color: white;
+            font-size: 0.65rem;
+            padding: 2px 5px;
+            border-radius: 10px;
+            font-weight: bold;
+            min-width: 16px;
+            text-align: center
+        }
+
+        .notif-dropdown {
+            position: absolute;
+            top: 65px;
+            right: 120px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            width: 330px;
+            max-height: 380px;
+            overflow-y: auto;
+            display: none;
+            z-index: 1001
+        }
+
+            .notif-dropdown.show {
+                display: block
+            }
+
+        .notif-header {
+            padding: 15px 18px;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+
+        .notif-item {
+            padding: 13px 18px;
+            border-bottom: 1px solid #f5f5f5;
+            cursor: pointer;
+            transition: background 0.2s
+        }
+
+            .notif-item:hover {
+                background: #f8f9fa
+            }
+
+            .notif-item.unread {
+                background: #e8f4f8;
+                border-left: 3px solid #1a5f7a
+            }
+
+        .notif-msg {
+            color: #333;
+            margin-bottom: 3px;
+            font-size: 0.9rem
+        }
+
+        .notif-time {
+            font-size: 0.75rem;
+            color: #999
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem
+        }
+
+        .logout-btn, .profile-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 7px 14px;
+            border-radius: 18px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s
+        }
+
+            .logout-btn:hover, .profile-btn:hover {
+                background: rgba(255,255,255,0.3)
+            }
+
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 25px
+        }
+
+        .welcome-section {
+            background: linear-gradient(135deg,#1a5f7a,#159895);
+            color: white;
+            border-radius: 18px;
+            padding: 28px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+
+        .welcome-text h2 {
+            font-size: 1.7rem;
+            margin-bottom: 8px
+        }
+
+        .welcome-text p {
+            opacity: 0.9;
+            font-size: 0.95rem
+        }
+
+        .quick-stats {
+            display: flex;
+            gap: 15px
+        }
+
+        .stat-item {
+            background: rgba(255,255,255,0.2);
+            padding: 13px 20px;
+            border-radius: 13px;
+            text-align: center;
+            min-width: 80px
+        }
+
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 700
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            opacity: 0.9
+        }
+
+        .tabs-nav {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 5px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            width: fit-content
+        }
+
+        .tab-btn {
+            padding: 9px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            background: none;
+            color: #666;
+            transition: all 0.3s;
+            font-weight: 500
+        }
+
+            .tab-btn.active {
+                background: linear-gradient(135deg,#1a5f7a,#159895);
+                color: white
+            }
+
+        .tab-content {
+            display: none
+        }
+
+            .tab-content.active {
+                display: block
+            }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit,minmax(320px,1fr));
+            gap: 20px
+        }
+
+        .card {
+            background: white;
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.07)
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem
+        }
+
+        .icon-teal {
+            background: #e0f7f5
+        }
+
+        .icon-green {
+            background: #e8f5e9
+        }
+
+        .icon-orange {
+            background: #fff3e0
+        }
+
+        .icon-red {
+            background: #fce4ec
+        }
+
+        .icon-blue {
+            background: #e3f2fd
+        }
+
+        .condition-box {
+            background: #f8f9fa;
+            border-radius: 13px;
+            padding: 18px
+        }
+
+        .condition-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1a5f7a;
+            margin-bottom: 8px
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 18px;
+            font-size: 0.8rem;
+            font-weight: 500
+        }
+
+        .badge-stable {
+            background: #d4edda;
+            color: #155724
+        }
+
+        .badge-active {
+            background: #fff3cd;
+            color: #856404
+        }
+
+        .badge-critical {
+            background: #f8d7da;
+            color: #721c24
+        }
+
+        .badge-treatment {
+            background: #e2d5f1;
+            color: #5a3d7a
+        }
+
+        .badge-pending {
+            background: #e2e3e5;
+            color: #383d41
+        }
+
+        .next-pickup-box {
+            background: #e8f5e9;
+            border-radius: 13px;
+            padding: 18px;
+            text-align: center
+        }
+
+        .pickup-date-big {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: #2e7d32
+        }
+
+        .days-pill {
+            background: #1a5f7a;
+            color: white;
+            padding: 8px 18px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 0.9rem
+        }
+
+        .ambulance-status-box {
+            background: #f8f9fa;
+            border-radius: 13px;
+            padding: 18px;
+            text-align: center;
+            margin-bottom: 12px
+        }
+
+        .big-icon {
+            font-size: 2.8rem;
+            margin-bottom: 8px
+        }
+
+        .btn {
+            padding: 12px 22px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            width: 100%;
+            margin-bottom: 8px
+        }
+
+            .btn:hover {
+                transform: translateY(-2px)
+            }
+
+        .btn-red {
+            background: linear-gradient(135deg,#ff6b6b,#ee5a5a);
+            color: white
+        }
+
+            .btn-red:hover {
+                box-shadow: 0 8px 20px rgba(238,90,90,0.35)
+            }
+
+        .btn-teal {
+            background: linear-gradient(135deg,#1a5f7a,#159895);
+            color: white
+        }
+
+            .btn-teal:hover {
+                box-shadow: 0 8px 20px rgba(26,95,122,0.3)
+            }
+
+        .btn-grey {
+            background: #6c757d;
+            color: white
+        }
+
+        .btn-outline {
+            background: white;
+            color: #1a5f7a;
+            border: 2px solid #1a5f7a
+        }
+
+        .map-container {
+            background: #e8f4f8;
+            border-radius: 13px;
+            height: 220px;
+            position: relative;
+            overflow: hidden
+        }
+
+        .map-grid-bg {
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(rgba(26,95,122,0.07) 1px,transparent 1px),linear-gradient(90deg,rgba(26,95,122,0.07) 1px,transparent 1px);
+            background-size: 25px 25px;
+            position: relative
+        }
+
+        .map-road-h {
+            position: absolute;
+            background: rgba(255,255,255,0.6);
+            height: 3px;
+            width: 100%
+        }
+
+        .map-road-v {
+            position: absolute;
+            background: rgba(255,255,255,0.6);
+            width: 3px;
+            height: 100%
+        }
+
+        .amb-marker {
+            position: absolute;
+            font-size: 1.8rem;
+            transition: all 1.5s ease-in-out;
+            z-index: 5
+        }
+
+        .patient-pin {
+            position: absolute;
+            font-size: 1.5rem;
+            right: 12%;
+            top: 45%;
+            z-index: 5
+        }
+
+        .eta-badge {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            background: white;
+            padding: 8px 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+            font-weight: 600;
+            color: #1a5f7a;
+            font-size: 0.9rem;
+            z-index: 6
+        }
+
+        .map-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #666;
+            gap: 8px
+        }
+
+        .history-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 0
+        }
+
+        .history-item {
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+            position: relative;
+            padding-left: 20px
+        }
+
+            .history-item::before {
+                content: "";
+                position: absolute;
+                left: 0;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                background: #1a5f7a
+            }
+
+        .history-date {
+            font-size: 0.78rem;
+            color: #999;
+            margin-bottom: 3px
+        }
+
+        .history-note {
+            color: #333;
+            font-size: 0.93rem;
+            line-height: 1.5
+        }
+
+        .history-by {
+            font-size: 0.75rem;
+            color: #1a5f7a;
+            margin-top: 3px
+        }
+
+        .form-group {
+            margin-bottom: 16px
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 6px;
+                font-weight: 500;
+                color: #333;
+                font-size: 0.9rem
+            }
+
+            .form-group input, .form-group select, .form-group textarea {
+                width: 100%;
+                padding: 11px 14px;
+                border: 2px solid #eee;
+                border-radius: 10px;
+                font-size: 0.95rem;
+                transition: all 0.3s;
+                font-family: inherit
+            }
+
+                .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+                    outline: none;
+                    border-color: #1a5f7a;
+                    box-shadow: 0 0 0 3px rgba(26,95,122,0.1)
+                }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px
+        }
+
+        .save-btn {
+            background: linear-gradient(135deg,#1a5f7a,#159895);
+            color: white;
+            border: none;
+            padding: 13px 30px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s
+        }
+
+            .save-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(26,95,122,0.3)
+            }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 0.9rem
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center
+        }
+
+            .modal.show {
+                display: flex
+            }
+
+        .modal-content {
+            background: white;
+            border-radius: 18px;
+            padding: 28px;
+            width: 90%;
+            max-width: 480px;
+            max-height: 90vh;
+            overflow-y: auto
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 600
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: #999
+        }
+
+        @media(max-width:768px) {
+            .welcome-section {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center
+            }
+
+            .quick-stats {
+                flex-wrap: wrap;
+                justify-content: center
+            }
+
+            .form-row {
+                grid-template-columns: 1fr
+            }
+
+            .tabs-nav {
+                width: 100%;
+                justify-content: space-around
+            }
+
+            .notif-dropdown {
+                right: 10px;
+                width: calc(100vw - 20px)
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">🏥 MediCare Clinic</div>
+        <div class="navbar-right">
+            <div class="notif-bell" onclick="toggleNotifications()">🔔<span class="notif-badge" id="notifBadge">0</span></div>
+            <div class="notif-dropdown" id="notifDropdown">
+                <div class="notif-header"><span>Notifications</span><button onclick="markAllRead()" style="background:none;border:none;color:#1a5f7a;cursor:pointer;font-size:0.82rem">Mark all read</button></div>
+                <div id="notifList"></div>
+            </div>
+            <div class="user-avatar">👤</div>
+            <span id="userName" style="font-size:0.9rem">Patient</span>
+            <button class="profile-btn" onclick="openProfileModal()">⚙️ Profile</button>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <section class="welcome-section">
+            <div class="welcome-text">
+                <h2>Welcome back, <span id="welcomeName">Patient</span>!</h2>
+                <p id="welcomeSub">Here's your health overview for today</p>
+            </div>
+            <div class="quick-stats">
+                <div class="stat-item"><div class="stat-value" id="daysUntilPickup">--</div><div class="stat-label">Days to Pickup</div></div>
+                <div class="stat-item"><div class="stat-value" id="unreadNotifs">0</div><div class="stat-label">Notifications</div></div>
+                <div class="stat-item"><div class="stat-value" id="historyCount">0</div><div class="stat-label">Medical Records</div></div>
+            </div>
+        </section>
+
+        <div class="tabs-nav">
+            <button class="tab-btn active" onclick="switchTab('overview',this)">📊 Overview</button>
+            <button class="tab-btn" onclick="switchTab('medical',this)">🏥 Medical History</button>
+            <button class="tab-btn" onclick="switchTab('ambulance',this)">🚑 Ambulance</button>
+            <button class="tab-btn" onclick="switchTab('appointments',this)">📅 Appointments</button>
+        </div>
+
+        <!-- OVERVIEW TAB -->
+        <div class="tab-content active" id="tab-overview">
+            <div class="dashboard-grid">
+                <div class="card">
+                    <div class="card-title"><div class="card-icon icon-teal">💊</div>My Condition</div>
+                    <div class="condition-box">
+                        <div class="condition-name" id="conditionName">Loading...</div>
+                        <span class="badge" id="conditionBadge">Stable</span>
+                        <p style="margin-top:13px;color:#666;line-height:1.6;font-size:0.92rem" id="conditionNote">Continue taking prescribed medication as directed.</p>
+                        <div style="margin-top:12px;font-size:0.88rem;color:#888">
+                            <div>📍 City: <strong id="patientCity">—</strong></div>
+                            <div>📞 Phone: <strong id="patientPhone">—</strong></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title"><div class="card-icon icon-green">📅</div>Next Medication Pickup</div>
+                    <div class="next-pickup-box">
+                        <div class="pickup-date-big" id="pickupDate">—</div>
+                        <div style="color:#666;font-size:0.88rem;margin-top:4px">Next scheduled pickup</div>
+                        <div class="days-pill" id="daysRemaining">— days remaining</div>
+                    </div>
+                    <p style="color:#666;text-align:center;font-size:0.85rem;margin-top:12px">📍 MediCare Clinic Pharmacy</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- MEDICAL HISTORY TAB -->
+        <div class="tab-content" id="tab-medical">
+            <div class="card">
+                <div class="card-title"><div class="card-icon icon-blue">📋</div>Medical History & Doctor Notes</div>
+                <div id="historyContainer">
+                    <div style="text-align:center;padding:40px;color:#999">
+                        <div style="font-size:3rem;margin-bottom:10px">📋</div>
+                        <p>No medical history recorded yet.</p>
+                        <p style="font-size:0.85rem">Your doctor's notes will appear here after visits.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AMBULANCE TAB -->
+        <div class="tab-content" id="tab-ambulance">
+            <div class="dashboard-grid">
+                <div class="card">
+                    <div class="card-title"><div class="card-icon icon-orange">🚑</div>Ambulance Services</div>
+                    <div class="ambulance-status-box" id="ambStatusBox">
+                        <div class="big-icon">🚑</div>
+                        <p style="font-weight:600;color:#333">No Active Request</p>
+                        <p style="color:#666;font-size:0.88rem">Request help for emergency or schedule a hospital transport</p>
+                    </div>
+                    <button class="btn btn-red" id="requestAmbBtn" onclick="requestAmbulance()">🚨 Request Emergency Ambulance</button>
+                    <button class="btn btn-teal" onclick="openBookingModal()">📅 Schedule Hospital Transport</button>
+                </div>
+                <div class="card">
+                    <div class="card-title"><div class="card-icon icon-red">📍</div>Live Ambulance Tracking</div>
+                    <div class="map-container" id="mapContainer">
+                        <div class="map-placeholder" id="mapPlaceholder">
+                            <div style="font-size:3rem">🗺️</div>
+                            <p style="color:#666">No ambulance en route</p>
+                            <p style="font-size:0.82rem;color:#999">Request an ambulance to see live tracking</p>
+                        </div>
+                        <div class="map-grid-bg" id="liveMap" style="display:none">
+                            <div class="map-road-h" style="top:33%"></div>
+                            <div class="map-road-h" style="top:66%"></div>
+                            <div class="map-road-v" style="left:33%"></div>
+                            <div class="map-road-v" style="left:66%"></div>
+                            <div class="amb-marker" id="ambMarker" style="left:10%;top:50%">🚑</div>
+                            <div class="patient-pin">📍</div>
+                            <div class="eta-badge" id="etaBadge">ETA: — min</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- APPOINTMENTS TAB -->
+        <div class="tab-content" id="tab-appointments">
+            <div class="card">
+                <div class="card-title"><div class="card-icon icon-green">📅</div>My Scheduled Appointments & Pickups</div>
+                <div id="appointmentsList">
+                    <div style="text-align:center;padding:40px;color:#999">
+                        <div style="font-size:3rem;margin-bottom:10px">📅</div>
+                        <p>No appointments scheduled yet.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Profile / Edit Modal -->
+    <div class="modal" id="profileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">⚙️ Edit Profile</span>
+                <button class="modal-close" onclick="closeModal('profileModal')">×</button>
+            </div>
+            <div id="profileAlert"></div>
+            <div class="form-row">
+                <div class="form-group"><label>First Name</label><input type="text" id="editName"></div>
+                <div class="form-group"><label>Surname</label><input type="text" id="editSurname"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>Phone</label><input type="tel" id="editPhone"></div>
+                <div class="form-group"><label>Email</label><input type="email" id="editEmail"></div>
+            </div>
+            <div class="form-group"><label>Address</label><input type="text" id="editAddress"></div>
+            <div class="form-group"><label>City/Town</label><input type="text" id="editCity"></div>
+            <hr style="margin:18px 0;border-color:#eee">
+            <p style="font-size:0.88rem;color:#666;margin-bottom:12px">Change Password (leave blank to keep current)</p>
+            <div class="form-row">
+                <div class="form-group"><label>New Password</label><input type="password" id="editNewPass" placeholder="New password"></div>
+                <div class="form-group"><label>Confirm Password</label><input type="password" id="editConfirmPass" placeholder="Confirm"></div>
+            </div>
+            <button class="save-btn" onclick="saveProfile()">💾 Save Changes</button>
+        </div>
+    </div>
+
+    <!-- Booking Modal -->
+    <div class="modal" id="bookingModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">📅 Schedule Hospital Transport</span>
+                <button class="modal-close" onclick="closeModal('bookingModal')">×</button>
+            </div>
+            <div id="bookingAlert"></div>
+            <div class="form-group"><label>Transport Date</label><input type="date" id="bookingDate" required></div>
+            <div class="form-group">
+                <label>Preferred Time</label>
+                <select id="bookingTime">
+                    <option value="">Select time</option>
+                    <option value="07:00">07:00 AM</option>
+                    <option value="08:00">08:00 AM</option>
+                    <option value="09:00">09:00 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="12:00">12:00 PM</option>
+                    <option value="14:00">02:00 PM</option>
+                    <option value="15:00">03:00 PM</option>
+                    <option value="16:00">04:00 PM</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Destination Hospital</label><input type="text" id="bookingDest" placeholder="e.g., Charlotte Maxeke Hospital"></div>
+            <div class="form-group"><label>Reason for Visit</label><textarea id="bookingReason" rows="3" placeholder="e.g., Monthly dialysis treatment"></textarea></div>
+            <button class="save-btn" onclick="submitBooking()" style="width:100%">📅 Schedule Transport</button>
+        </div>
+    </div>
+
+    <script>
+        // AUTH GUARD
+        const sess = sessionStorage.getItem('currentUser');
+        if (!sess) { window.location.href = 'login.html'; }
+        let currentPatient = JSON.parse(sess || '{}');
+        if (currentPatient.type !== 'patient') { window.location.href = 'login.html'; }
+
+        let ambulanceRequest = null;
+        let etaInterval = null;
+        let pollInterval = null;
+        let etaMinutes = 15;
+        let ambPositions = [{ left: 8, top: 55 }, { left: 22, top: 40 }, { left: 38, top: 55 }, { left: 52, top: 38 }, { left: 65, top: 50 }, { left: 78, top: 42 }, { left: 88, top: 50 }];
+        let ambStep = 0;
+
+        function refreshFromStorage() {
+            const patients = JSON.parse(localStorage.getItem('patients') || '[]');
+            const fresh = patients.find(p => p.id === currentPatient.id);
+            if (fresh) { currentPatient = { ...fresh, type: 'patient' }; sessionStorage.setItem('currentUser', JSON.stringify(currentPatient)); }
+        }
+
+        function init() {
+            refreshFromStorage();
+            const reqs = JSON.parse(localStorage.getItem('ambulanceRequests') || '[]');
+            ambulanceRequest = reqs.find(r => r.patientId === currentPatient.id && r.status !== 'completed') || null;
+            updateUI();
+            loadAppointments();
+        }
+
+        function switchTab(id, btn) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + id).classList.add('active');
+            if (btn) btn.classList.add('active');
+            if (id === 'medical') renderHistory();
+            if (id === 'appointments') loadAppointments();
+        }
+
+        function updateUI() {
+            document.getElementById('welcomeName').textContent = currentPatient.name;
+            document.getElementById('userName').textContent = `${currentPatient.name} ${currentPatient.surname}`;
+            document.getElementById('conditionName').textContent = currentPatient.condition || 'To be assessed';
+            document.getElementById('patientCity').textContent = currentPatient.city || '—';
+            document.getElementById('patientPhone').textContent = currentPatient.phone || '—';
+            const status = currentPatient.status || 'Pending';
+            const badge = document.getElementById('conditionBadge');
+            badge.textContent = status;
+            const cls = { Active: 'badge-active', Stable: 'badge-stable', Critical: 'badge-critical', 'In Treatment': 'badge-treatment' }[status] || 'badge-pending';
+            badge.className = 'badge ' + cls;
+            if (currentPatient.reasonForVisit && currentPatient.reasonForVisit !== 'Regular checkup and medication') {
+                document.getElementById('conditionNote').textContent = currentPatient.reasonForVisit;
+            }
+            if (currentPatient.nextPickup) {
+                const d = new Date(currentPatient.nextPickup);
+                const days = Math.ceil((d - new Date()) / 86400000);
+                document.getElementById('pickupDate').textContent = d.toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' });
+                document.getElementById('daysRemaining').textContent = days > 0 ? `${days} days remaining` : 'Due today!';
+                document.getElementById('daysUntilPickup').textContent = Math.max(0, days);
+            } else {
+                document.getElementById('pickupDate').textContent = 'Not scheduled';
+                document.getElementById('daysRemaining').textContent = 'Contact clinic';
+                document.getElementById('daysUntilPickup').textContent = '--';
+            }
+            const unread = (currentPatient.notifications || []).filter(n => !n.read).length;
+            document.getElementById('notifBadge').textContent = unread;
+            document.getElementById('unreadNotifs').textContent = unread;
+            document.getElementById('historyCount').textContent = (currentPatient.medicalHistory || []).length;
+            renderNotifications();
+            updateAmbulanceUI();
+        }
+
+        function renderNotifications() {
+            const notifs = currentPatient.notifications || [];
+            document.getElementById('notifList').innerHTML = notifs.length === 0
+                ? '<div class="notif-item"><p style="color:#999;font-size:0.88rem">No notifications</p></div>'
+                : notifs.map(n => `<div class="notif-item ${n.read ? '' : 'unread'}" onclick="markRead(${n.id})"><div class="notif-msg">${n.message}</div><div class="notif-time">${n.time}</div></div>`).join('');
+        }
+
+        function toggleNotifications() { document.getElementById('notifDropdown').classList.toggle('show'); }
+        function markRead(id) { const n = (currentPatient.notifications || []).find(x => x.id === id); if (n) { n.read = true; saveToStorage(); updateUI(); } }
+        function markAllRead() { (currentPatient.notifications || []).forEach(n => n.read = true); saveToStorage(); updateUI(); }
+
+        function renderHistory() {
+            const h = currentPatient.medicalHistory || [];
+            const el = document.getElementById('historyContainer');
+            if (!h.length) { el.innerHTML = '<div style="text-align:center;padding:40px;color:#999"><div style="font-size:3rem;margin-bottom:10px">📋</div><p>No medical history recorded yet.</p></div>'; return; }
+            el.innerHTML = '<div class="history-timeline">' + h.map(item => `
+                <div class="history-item">
+                    <div class="history-date">${item.date}</div>
+                    <div class="history-note">${item.note}</div>
+                    <div class="history-by">— Recorded by ${item.updatedBy || 'Clinic Staff'}</div>
+                </div>`).join('') + '</div>';
+        }
+
+        function loadAppointments() {
+            const pickups = JSON.parse(localStorage.getItem('scheduledPickups') || '[]');
+            const myPickups = pickups.filter(p => p.patientId === currentPatient.id);
+            const el = document.getElementById('appointmentsList');
+            if (!myPickups.length) { el.innerHTML = '<div style="text-align:center;padding:40px;color:#999"><div style="font-size:3rem">📅</div><p>No appointments scheduled yet.</p></div>'; return; }
+            el.innerHTML = myPickups.map(p => `
+                <div style="padding:15px;border:1px solid #eee;border-radius:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
+                    <div>
+                        <div style="font-weight:600;color:#333">${p.destination}</div>
+                        <div style="color:#666;font-size:0.88rem">${p.scheduledDate} at ${p.time || '—'}</div>
+                        <div style="color:#999;font-size:0.82rem">${p.reason}</div>
+                    </div>
+                    <span style="padding:4px 12px;border-radius:18px;font-size:0.78rem;background:${p.status === 'scheduled' ? '#d4edda' : '#e2e3e5'};color:${p.status === 'scheduled' ? '#155724' : '#383d41'}">${p.status}</span>
+                </div>`).join('');
+        }
+
+        function updateAmbulanceUI() {
+            const box = document.getElementById('ambStatusBox');
+            const btn = document.getElementById('requestAmbBtn');
+            const placeholder = document.getElementById('mapPlaceholder');
+            const liveMap = document.getElementById('liveMap');
+            if (ambulanceRequest) {
+                if (ambulanceRequest.status === 'pending') {
+                    box.innerHTML = '<div class="big-icon">⏳</div><p style="font-weight:600;color:#856404">Request Pending</p><p style="color:#666;font-size:0.88rem">Waiting for an ambulance to accept your request...</p>';
+                    btn.textContent = '❌ Cancel Request'; btn.className = 'btn btn-grey'; btn.onclick = cancelAmbulance;
+                } else if (ambulanceRequest.status === 'accepted') {
+                    box.innerHTML = `<div class="big-icon">🚑</div><p style="font-weight:600;color:#155724">Ambulance En Route!</p><p style="color:#666;font-size:0.88rem">Driver: ${ambulanceRequest.driverName || 'Assigned Driver'}</p>`;
+                    btn.style.display = 'none';
+                    placeholder.style.display = 'none';
+                    liveMap.style.display = 'block';
+                    startAmbulanceAnimation();
+                }
+            } else {
+                box.innerHTML = '<div class="big-icon">🚑</div><p style="font-weight:600;color:#333">No Active Request</p><p style="color:#666;font-size:0.88rem">Request emergency help or schedule a hospital transport</p>';
+                btn.textContent = '🚨 Request Emergency Ambulance'; btn.className = 'btn btn-red'; btn.onclick = requestAmbulance; btn.style.display = 'block';
+                placeholder.style.display = 'flex'; liveMap.style.display = 'none';
+                if (etaInterval) { clearInterval(etaInterval); etaInterval = null; }
+            }
+        }
+
+        function startAmbulanceAnimation() {
+            if (etaInterval) return;
+            ambStep = 0; etaMinutes = 15;
+            const marker = document.getElementById('ambMarker');
+            const badge = document.getElementById('etaBadge');
+            badge.textContent = `ETA: ${etaMinutes} min`;
+            etaInterval = setInterval(() => {
+                ambStep = (ambStep + 1) % ambPositions.length;
+                const pos = ambPositions[ambStep];
+                marker.style.left = pos.left + '%'; marker.style.top = pos.top + '%';
+                etaMinutes = Math.max(0, etaMinutes - 2.2);
+                badge.textContent = etaMinutes > 0 ? `ETA: ${Math.ceil(etaMinutes)} min` : 'Arriving now! 🚑';
+                if (etaMinutes <= 0) {
+                    clearInterval(etaInterval); etaInterval = null;
+                    addNotification('Ambulance has arrived at your location!');
+                }
+            }, 4000);
+        }
+
+        function requestAmbulance() {
+            const req = {
+                id: `REQ${Date.now()}`,
+                patientId: currentPatient.id,
+                patientName: `${currentPatient.name} ${currentPatient.surname}`,
+                city: currentPatient.city,
+                status: 'pending',
+                type: 'emergency',
+                timestamp: new Date().toISOString()
+            };
+            const reqs = JSON.parse(localStorage.getItem('ambulanceRequests') || '[]');
+            reqs.push(req);
+            localStorage.setItem('ambulanceRequests', JSON.stringify(reqs));
+            ambulanceRequest = req;
+
+            // Mark patient as requesting so driver map shows the pin
+            currentPatient.ambulanceStatus = 'requesting';
+            saveToStorage();
+
+            addNotification('Emergency ambulance requested. Waiting for a driver to accept...');
+            updateAmbulanceUI();
+
+            // Poll every 5 seconds to check if a driver accepted
+            if (pollInterval) clearInterval(pollInterval);
+            pollInterval = setInterval(pollRequestStatus, 5000);
+        }
+
+        function pollRequestStatus() {
+            if (!ambulanceRequest) { clearInterval(pollInterval); return; }
+            const all = JSON.parse(localStorage.getItem('ambulanceRequests') || '[]');
+            const updated = all.find(r => r.id === ambulanceRequest.id);
+
+            if (!updated) {
+                // Request no longer exists (e.g. cancelled from another tab)
+                ambulanceRequest = null;
+                currentPatient.ambulanceStatus = 'none';
+                saveToStorage();
+                clearInterval(pollInterval);
+                updateAmbulanceUI();
+                return;
+            }
+
+            if (updated.status === 'accepted' && ambulanceRequest.status === 'pending') {
+                ambulanceRequest = updated;
+                currentPatient.ambulanceStatus = 'enroute';
+                saveToStorage();
+                clearInterval(pollInterval);
+                addNotification(`Ambulance accepted! ${updated.driverName || 'A driver'} is on the way. ETA: ~15 minutes`);
+                updateAmbulanceUI();
+            }
+        }
+
+        function cancelAmbulance() {
+            if (!ambulanceRequest) return;
+            const all = JSON.parse(localStorage.getItem('ambulanceRequests') || '[]');
+            const idx = all.findIndex(r => r.id === ambulanceRequest.id);
+            if (idx !== -1) { all.splice(idx, 1); localStorage.setItem('ambulanceRequests', JSON.stringify(all)); }
+            ambulanceRequest = null;
+            currentPatient.ambulanceStatus = 'none';
+            saveToStorage();
+            addNotification('Ambulance request cancelled.');
+            if (etaInterval) { clearInterval(etaInterval); etaInterval = null; }
+            if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+            updateAmbulanceUI();
+        }
+
+        function openProfileModal() {
+            document.getElementById('editName').value = currentPatient.name || '';
+            document.getElementById('editSurname').value = currentPatient.surname || '';
+            document.getElementById('editPhone').value = currentPatient.phone || '';
+            document.getElementById('editEmail').value = currentPatient.email || '';
+            document.getElementById('editAddress').value = currentPatient.address || '';
+            document.getElementById('editCity').value = currentPatient.city || '';
+            document.getElementById('editNewPass').value = '';
+            document.getElementById('editConfirmPass').value = '';
+            document.getElementById('profileAlert').innerHTML = '';
+            document.getElementById('profileModal').classList.add('show');
+        }
+
+        function saveProfile() {
+            const newPass = document.getElementById('editNewPass').value;
+            const confirmPass = document.getElementById('editConfirmPass').value;
+            const alertEl = document.getElementById('profileAlert');
+            if (newPass && newPass !== confirmPass) {
+                alertEl.innerHTML = '<div class="alert alert-error">Passwords do not match.</div>'; return;
+            }
+            if (newPass && newPass.length < 6) {
+                alertEl.innerHTML = '<div class="alert alert-error">Password must be at least 6 characters.</div>'; return;
+            }
+            currentPatient.name = document.getElementById('editName').value.trim();
+            currentPatient.surname = document.getElementById('editSurname').value.trim();
+            currentPatient.phone = document.getElementById('editPhone').value.trim();
+            currentPatient.email = document.getElementById('editEmail').value.trim();
+            currentPatient.address = document.getElementById('editAddress').value.trim();
+            currentPatient.city = document.getElementById('editCity').value.trim();
+            if (newPass) currentPatient.password = newPass;
+            saveToStorage();
+            alertEl.innerHTML = '<div class="alert alert-success">Profile updated successfully!</div>';
+            setTimeout(() => { closeModal('profileModal'); updateUI(); }, 1200);
+        }
+
+        function openBookingModal() {
+            document.getElementById('bookingDate').min = new Date().toISOString().split('T')[0];
+            document.getElementById('bookingAlert').innerHTML = '';
+            document.getElementById('bookingModal').classList.add('show');
+        }
+
+        function submitBooking() {
+            const date = document.getElementById('bookingDate').value;
+            const time = document.getElementById('bookingTime').value;
+            const dest = document.getElementById('bookingDest').value.trim();
+            const reason = document.getElementById('bookingReason').value.trim();
+            const alertEl = document.getElementById('bookingAlert');
+            if (!date || !time || !dest) { alertEl.innerHTML = '<div class="alert alert-error">Please fill all required fields.</div>'; return; }
+            const pickup = { id: `BOOK${Date.now()}`, patientId: currentPatient.id, patientName: `${currentPatient.name} ${currentPatient.surname}`, scheduledDate: date, time, destination: dest, reason: reason || 'Hospital appointment', city: currentPatient.city, status: 'scheduled', createdAt: new Date().toISOString() };
+            const pickups = JSON.parse(localStorage.getItem('scheduledPickups') || '[]');
+            pickups.push(pickup); localStorage.setItem('scheduledPickups', JSON.stringify(pickups));
+            addNotification(`Transport scheduled for ${new Date(date).toLocaleDateString('en-ZA')} at ${time}`);
+            closeModal('bookingModal');
+            document.getElementById('bookingDate').value = ''; document.getElementById('bookingTime').value = ''; document.getElementById('bookingDest').value = ''; document.getElementById('bookingReason').value = '';
+            loadAppointments();
+        }
+
+        function addNotification(msg) {
+            if (!currentPatient.notifications) currentPatient.notifications = [];
+            currentPatient.notifications.unshift({ id: Date.now(), message: msg, read: false, time: 'Just now' });
+            saveToStorage(); updateUI();
+        }
+
+        function saveToStorage() {
+            const patients = JSON.parse(localStorage.getItem('patients') || '[]');
+            const idx = patients.findIndex(p => p.id === currentPatient.id);
+            const toSave = { ...currentPatient }; delete toSave.type;
+            if (idx !== -1) { patients[idx] = toSave; } else { patients.push(toSave); }
+            localStorage.setItem('patients', JSON.stringify(patients));
+            sessionStorage.setItem('currentUser', JSON.stringify(currentPatient));
+        }
+
+        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+        function logout() { sessionStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
+
+        document.addEventListener('click', e => {
+            if (!e.target.closest('.notif-bell') && !e.target.closest('.notif-dropdown')) document.getElementById('notifDropdown').classList.remove('show');
+        });
+
+        init();
+    </script>
+</body>
+</html>

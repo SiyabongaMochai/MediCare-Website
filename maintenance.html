@@ -1,0 +1,1524 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maintenance Dashboard - MediCare Clinic</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+            background: #f0f4f8;
+            min-height: 100vh
+        }
+
+        .navbar {
+            background: linear-gradient(135deg,#0d3d4d,#1a5f7a);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.25)
+        }
+
+        .navbar-brand {
+            font-size: 1.4rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px
+        }
+
+        .dept-badge {
+            padding: 5px 14px;
+            border-radius: 18px;
+            font-size: 0.82rem;
+            font-weight: 600
+        }
+
+        .badge-it {
+            background: #6c5ce7;
+            color: white
+        }
+
+        .badge-facilities {
+            background: #00b894;
+            color: white
+        }
+
+        .badge-mechanic {
+            background: #e17055;
+            color: white
+        }
+
+        .badge-general {
+            background: #57c5b6;
+            color: #0d3d4d
+        }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 7px 16px;
+            border-radius: 18px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.2s
+        }
+
+            .logout-btn:hover {
+                background: rgba(255,255,255,0.35)
+            }
+
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 62px)
+        }
+
+        .sidebar {
+            width: 220px;
+            background: #1a1a2e;
+            padding: 18px 12px;
+            flex-shrink: 0
+        }
+
+        .nav-section {
+            margin-bottom: 20px
+        }
+
+        .nav-section-title {
+            color: #636e72;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            padding-left: 10px
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 13px;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #b2bec3;
+            margin-bottom: 3px;
+            font-size: 0.9rem
+        }
+
+            .nav-item:hover {
+                background: rgba(87,197,182,0.12);
+                color: white
+            }
+
+            .nav-item.active {
+                background: linear-gradient(135deg,#1a5f7a,#57c5b6);
+                color: white;
+                font-weight: 600
+            }
+
+        .main {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto
+        }
+
+        .section {
+            display: none
+        }
+
+            .section.active {
+                display: block
+            }
+
+        .page-header {
+            margin-bottom: 22px
+        }
+
+            .page-header h1 {
+                font-size: 1.6rem;
+                color: #2d3436;
+                margin-bottom: 4px
+            }
+
+            .page-header p {
+                color: #636e72;
+                font-size: 0.92rem
+            }
+        /* ROLE BANNER */
+        .role-banner {
+            border-radius: 16px;
+            padding: 22px 26px;
+            margin-bottom: 24px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 18px
+        }
+
+            .role-banner.it {
+                background: linear-gradient(135deg,#6c5ce7,#a29bfe)
+            }
+
+            .role-banner.facilities {
+                background: linear-gradient(135deg,#00b894,#00cec9)
+            }
+
+            .role-banner.mechanic {
+                background: linear-gradient(135deg,#e17055,#d63031)
+            }
+
+            .role-banner.general {
+                background: linear-gradient(135deg,#1a5f7a,#57c5b6)
+            }
+
+        .role-icon {
+            font-size: 2.8rem;
+            background: rgba(255,255,255,0.2);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0
+        }
+
+        .role-banner h2 {
+            font-size: 1.4rem;
+            margin-bottom: 4px
+        }
+
+        .role-banner p {
+            opacity: 0.88;
+            font-size: 0.9rem
+        }
+        /* STATS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit,minmax(160px,1fr));
+            gap: 16px;
+            margin-bottom: 22px
+        }
+
+        .stat {
+            background: white;
+            border-radius: 13px;
+            padding: 18px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.07)
+        }
+
+            .stat.orange {
+                border-left: 4px solid #e17055
+            }
+
+            .stat.blue {
+                border-left: 4px solid #0984e3
+            }
+
+            .stat.green {
+                border-left: 4px solid #00b894
+            }
+
+            .stat.red {
+                border-left: 4px solid #d63031
+            }
+
+            .stat.purple {
+                border-left: 4px solid #6c5ce7
+            }
+
+            .stat.teal {
+                border-left: 4px solid #57c5b6
+            }
+
+        .stat-val {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3436
+        }
+
+        .stat-lbl {
+            color: #636e72;
+            font-size: 0.83rem;
+            margin-top: 3px
+        }
+        /* CARDS */
+        .card {
+            background: white;
+            border-radius: 13px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+            overflow: hidden;
+            margin-bottom: 22px
+        }
+
+        .card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f1f3f5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2d3436
+        }
+
+        .card-body {
+            padding: 18px 20px
+        }
+        /* GRID LAYOUTS */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px
+        }
+
+        .three-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px
+        }
+        /* BUTTONS */
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.86rem;
+            font-weight: 600;
+            transition: all 0.2s
+        }
+
+            .btn:hover {
+                transform: translateY(-1px)
+            }
+
+        .btn-primary {
+            background: linear-gradient(135deg,#1a5f7a,#57c5b6);
+            color: white
+        }
+
+        .btn-success {
+            background: #00b894;
+            color: white
+        }
+
+        .btn-warning {
+            background: #fdcb6e;
+            color: #2d3436
+        }
+
+        .btn-danger {
+            background: #d63031;
+            color: white
+        }
+
+        .btn-light {
+            background: #f1f3f5;
+            color: #2d3436
+        }
+
+        .btn-purple {
+            background: linear-gradient(135deg,#6c5ce7,#a29bfe);
+            color: white
+        }
+
+        .btn-sm {
+            padding: 5px 11px;
+            font-size: 0.78rem;
+            border-radius: 7px
+        }
+        /* TABLE */
+        .table-wrap {
+            overflow-x: auto
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem
+        }
+
+        th {
+            background: #f8f9fa;
+            padding: 11px 14px;
+            text-align: left;
+            font-weight: 600;
+            color: #636e72;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px
+        }
+
+        td {
+            padding: 11px 14px;
+            border-bottom: 1px solid #f1f3f5;
+            color: #2d3436;
+            vertical-align: middle
+        }
+
+        tr:last-child td {
+            border-bottom: none
+        }
+
+        tr:hover td {
+            background: #f8fbff
+        }
+        /* BADGES */
+        .badge {
+            display: inline-block;
+            padding: 3px 9px;
+            border-radius: 11px;
+            font-size: 0.76rem;
+            font-weight: 600
+        }
+
+        .badge-open {
+            background: #fff3cd;
+            color: #856404
+        }
+
+        .badge-progress {
+            background: #cce5ff;
+            color: #004085
+        }
+
+        .badge-done {
+            background: #d4edda;
+            color: #155724
+        }
+
+        .badge-urgent {
+            background: #f8d7da;
+            color: #721c24
+        }
+
+        .badge-low {
+            background: #e2e3e5;
+            color: #383d41
+        }
+
+        .badge-medium {
+            background: #fff3cd;
+            color: #856404
+        }
+
+        .badge-high {
+            background: #fce4ec;
+            color: #c62828
+        }
+        /* FORM */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px
+        }
+
+        .form-group {
+            margin-bottom: 14px
+        }
+
+            .form-group.full {
+                grid-column: 1/-1
+            }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+                font-size: 0.86rem;
+                font-weight: 600;
+                color: #2d3436
+            }
+
+            .form-group input, .form-group select, .form-group textarea {
+                width: 100%;
+                border: 1.5px solid #dee2e6;
+                border-radius: 8px;
+                padding: 9px 12px;
+                font-size: 0.9rem;
+                color: #2d3436;
+                transition: border-color 0.2s;
+                background: white;
+                font-family: inherit
+            }
+
+                .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+                    outline: none;
+                    border-color: #1a5f7a;
+                    box-shadow: 0 0 0 3px rgba(26,95,122,0.1)
+                }
+
+            .form-group textarea {
+                resize: vertical;
+                min-height: 75px
+            }
+        /* CHECKLIST */
+        .checklist {
+            list-style: none
+        }
+
+            .checklist li {
+                display: flex;
+                align-items: flex-start;
+                gap: 11px;
+                padding: 10px 0;
+                border-bottom: 1px solid #f1f3f5
+            }
+
+                .checklist li:last-child {
+                    border-bottom: none
+                }
+
+            .checklist input[type="checkbox"] {
+                width: 17px;
+                height: 17px;
+                accent-color: #1a5f7a;
+                flex-shrink: 0;
+                margin-top: 2px;
+                cursor: pointer
+            }
+
+        .check-label {
+            flex: 1
+        }
+
+        .check-note {
+            font-size: 0.82rem;
+            color: #636e72;
+            display: block;
+            margin-top: 2px
+        }
+        /* PRIORITY */
+        .pri-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px
+        }
+
+        .dot-low {
+            background: #b2bec3
+        }
+
+        .dot-medium {
+            background: #fdcb6e
+        }
+
+        .dot-high {
+            background: #e17055
+        }
+
+        .dot-urgent {
+            background: #d63031
+        }
+        /* QUICK ACTIONS */
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(2,1fr);
+            gap: 10px
+        }
+
+        .quick-btn {
+            background: #f8f9fa;
+            border: 1.5px solid #dee2e6;
+            border-radius: 11px;
+            padding: 16px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            color: #2d3436;
+            width: 100%
+        }
+
+            .quick-btn:hover {
+                border-color: #1a5f7a;
+                background: #e8f5f9;
+                transform: translateY(-2px)
+            }
+
+            .quick-btn .qi {
+                font-size: 1.5rem;
+                margin-bottom: 5px;
+                display: block
+            }
+
+            .quick-btn p {
+                font-size: 0.78rem;
+                color: #636e72;
+                margin-top: 2px
+            }
+        /* IT SPECIFIC */
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill,minmax(200px,1fr));
+            gap: 14px;
+            margin-bottom: 6px
+        }
+
+        .device-card {
+            background: #f8f9fa;
+            border-radius: 11px;
+            padding: 14px;
+            border: 1.5px solid #dee2e6;
+            transition: all 0.2s
+        }
+
+            .device-card:hover {
+                border-color: #6c5ce7;
+                background: #f3f0ff
+            }
+
+        .device-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px
+        }
+
+        .ds-online {
+            background: #00b894
+        }
+
+        .ds-offline {
+            background: #d63031
+        }
+
+        .ds-warning {
+            background: #fdcb6e
+        }
+        /* VEHICLE */
+        .vehicle-card {
+            background: #f8f9fa;
+            border-radius: 11px;
+            padding: 16px;
+            border: 1.5px solid #dee2e6;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.2s
+        }
+
+            .vehicle-card:hover {
+                border-color: #e17055;
+                background: #fff4f2
+            }
+
+        .vehicle-icon {
+            font-size: 2rem;
+            background: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1.5px solid #dee2e6;
+            flex-shrink: 0
+        }
+        /* INVENTORY */
+        .stock-low {
+            color: #d63031;
+            font-weight: 700
+        }
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center
+        }
+
+            .modal.show {
+                display: flex
+            }
+
+        .modal-box {
+            background: white;
+            border-radius: 17px;
+            width: 90%;
+            max-width: 540px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2)
+        }
+
+        .modal-head {
+            padding: 18px 22px;
+            border-bottom: 1px solid #f1f3f5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+
+            .modal-head h3 {
+                font-size: 1.05rem;
+                font-weight: 600
+            }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            color: #636e72
+        }
+
+        .modal-body {
+            padding: 20px 22px
+        }
+
+        .modal-foot {
+            padding: 14px 22px;
+            border-top: 1px solid #f1f3f5;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px
+        }
+        /* TOAST */
+        .toast {
+            position: fixed;
+            bottom: 22px;
+            right: 22px;
+            background: #2d3436;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 11px;
+            font-size: 0.88rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            transform: translateY(80px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 9999
+        }
+
+            .toast.show {
+                transform: translateY(0);
+                opacity: 1
+            }
+
+            .toast.success {
+                border-left: 4px solid #00b894
+            }
+
+            .toast.error {
+                border-left: 4px solid #d63031
+            }
+        /* LOG */
+        .log-entry {
+            display: flex;
+            gap: 12px;
+            padding: 11px 0;
+            border-bottom: 1px solid #f1f3f5;
+            align-items: flex-start
+        }
+
+            .log-entry:last-child {
+                border-bottom: none
+            }
+
+        .log-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            flex-shrink: 0
+        }
+
+        .lg-green {
+            background: #d4edda
+        }
+
+        .lg-blue {
+            background: #cce5ff
+        }
+
+        .lg-orange {
+            background: #fff3cd
+        }
+
+        .lg-red {
+            background: #f8d7da
+        }
+
+        .lg-purple {
+            background: #e2d5f1
+        }
+
+        .log-body strong {
+            font-size: 0.88rem;
+            color: #2d3436
+        }
+
+        .log-body p {
+            font-size: 0.8rem;
+            color: #636e72;
+            margin-top: 1px
+        }
+
+        .log-time {
+            font-size: 0.75rem;
+            color: #b2bec3;
+            white-space: nowrap
+        }
+        /* PROFILE */
+        .profile-banner {
+            border-radius: 14px;
+            padding: 22px;
+            background: linear-gradient(135deg,#1a5f7a,#57c5b6);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 20px
+        }
+
+        .profile-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            border: 3px solid rgba(255,255,255,0.4)
+        }
+
+        @media(max-width:900px) {
+            .sidebar {
+                display: none
+            }
+
+            .two-col {
+                grid-template-columns: 1fr
+            }
+
+            .three-col {
+                grid-template-columns: 1fr
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand"><span id="navIcon">🔧</span><span id="navTitle">MediCare Maintenance</span></div>
+        <div class="navbar-right">
+            <span class="dept-badge" id="deptBadge">Maintenance</span>
+            <span id="navName" style="font-size:0.88rem">Staff</span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+    <div class="layout">
+        <aside class="sidebar" id="sidebar"><!-- filled by JS --></aside>
+        <main class="main" id="mainArea"><!-- sections filled by JS --></main>
+    </div>
+
+    <!-- Work Order Modal -->
+    <div class="modal" id="taskModal">
+        <div class="modal-box">
+            <div class="modal-head"><h3 id="taskModalTitle">Log New Issue</h3><button class="modal-close" onclick="closeModal('taskModal')">×</button></div>
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group"><label>Issue Title *</label><input type="text" id="tTitle" placeholder="e.g. Broken AC in Ward 3"></div>
+                    <div class="form-group">
+                        <label>Location *</label>
+                        <select id="tLocation"><option value="">-- Select --</option><option>Ward 1</option><option>Ward 2</option><option>Ward 3</option><option>ICU</option><option>Emergency Room</option><option>Reception</option><option>Pharmacy</option><option>Radiology</option><option>Laboratory</option><option>Ambulance Bay</option><option>Generator Room</option><option>IT Room</option><option>Staff Room</option><option>Storage</option><option>Other</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="tCategory"><option>Electrical</option><option>Plumbing</option><option>HVAC / Air Conditioning</option><option>Medical Equipment</option><option>Structural</option><option>IT / Network</option><option>Cleaning / Sanitation</option><option>Safety / Security</option><option>Vehicle / Ambulance</option><option>Other</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Priority</label>
+                        <select id="tPriority"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="urgent">Urgent</option></select>
+                    </div>
+                    <div class="form-group full"><label>Description *</label><textarea id="tDesc" placeholder="Describe the issue in detail..."></textarea></div>
+                    <div class="form-group"><label>Due Date</label><input type="date" id="tDue"></div>
+                </div>
+            </div>
+            <div class="modal-foot"><button class="btn btn-light" onclick="closeModal('taskModal')">Cancel</button><button class="btn btn-primary" onclick="saveTask()">Submit</button></div>
+        </div>
+    </div>
+
+    <!-- Update Task Modal -->
+    <div class="modal" id="updateModal">
+        <div class="modal-box">
+            <div class="modal-head"><h3>Update Work Order</h3><button class="modal-close" onclick="closeModal('updateModal')">×</button></div>
+            <div class="modal-body">
+                <input type="hidden" id="uTaskId">
+                <div class="form-group"><label>Status</label><select id="uStatus"><option value="open">Open</option><option value="in-progress">In Progress</option><option value="done">Completed</option></select></div>
+                <div class="form-group"><label>Priority</label><select id="uPriority"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="urgent">Urgent</option></select></div>
+                <div class="form-group"><label>Progress Note</label><textarea id="uNotes" placeholder="What was done / what's the current status..."></textarea></div>
+            </div>
+            <div class="modal-foot"><button class="btn btn-light" onclick="closeModal('updateModal')">Cancel</button><button class="btn btn-primary" onclick="saveUpdate()">Save</button></div>
+        </div>
+    </div>
+
+    <!-- Stock Modal -->
+    <div class="modal" id="stockModal">
+        <div class="modal-box">
+            <div class="modal-head"><h3>Add Inventory Item</h3><button class="modal-close" onclick="closeModal('stockModal')">×</button></div>
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group"><label>Item Name *</label><input type="text" id="sName" placeholder="e.g. LED Tube Bulb"></div>
+                    <div class="form-group"><label>Category</label><select id="sCat"><option>Electrical</option><option>Plumbing</option><option>Cleaning</option><option>IT Hardware</option><option>Tools</option><option>Vehicle Parts</option><option>Safety</option><option>Other</option></select></div>
+                    <div class="form-group"><label>Quantity</label><input type="number" id="sQty" value="1" min="0"></div>
+                    <div class="form-group"><label>Min Stock</label><input type="number" id="sMin" value="5" min="0"></div>
+                    <div class="form-group"><label>Unit</label><input type="text" id="sUnit" placeholder="pcs / litres / rolls"></div>
+                    <div class="form-group"><label>Location</label><input type="text" id="sLoc" placeholder="e.g. Storeroom A"></div>
+                </div>
+            </div>
+            <div class="modal-foot"><button class="btn btn-light" onclick="closeModal('stockModal')">Cancel</button><button class="btn btn-primary" onclick="saveStock()">Add Item</button></div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ── Auth ──────────────────────────────────────────
+        const sess = sessionStorage.getItem('currentUser');
+        if (!sess) { window.location.href = 'login.html'; }
+        const cu = JSON.parse(sess || '{}');
+        if (cu.type !== 'maint_team') { window.location.href = 'login.html'; }
+
+        // ── Department detection ──────────────────────────
+        const dept = (cu.department || 'General').toLowerCase();
+        const isIT = dept.includes('it') || dept.includes('network') || dept.includes('tech');
+        const isMechanic = dept.includes('mechanic') || dept.includes('vehicle') || dept.includes('transport') || dept.includes('ambulance');
+        const isFacilities = dept.includes('facilit') || dept.includes('clean') || dept.includes('sanit') || dept.includes('hygiene');
+        // default = general maintenance
+
+        let roleKey = 'general';
+        if (isIT) roleKey = 'it';
+        else if (isMechanic) roleKey = 'mechanic';
+        else if (isFacilities) roleKey = 'facilities';
+
+        const ROLES = {
+            it: {
+                icon: '💻', label: 'IT Support', color: 'it', navColor: 'badge-it', accent: '#6c5ce7',
+                desc: 'Manage network, servers, workstations and IT infrastructure',
+                sections: ['dashboard', 'tickets', 'devices', 'checklist', 'inventory', 'profile']
+            },
+            mechanic: {
+                icon: '🚗', label: 'Vehicle & Ambulance Tech', color: 'mechanic', navColor: 'badge-mechanic', accent: '#e17055',
+                desc: 'Manage ambulance fleet, vehicle maintenance and mechanical work orders',
+                sections: ['dashboard', 'tasks', 'vehicles', 'checklist', 'inventory', 'profile']
+            },
+            facilities: {
+                icon: '🏥', label: 'Facilities & Sanitation', color: 'facilities', navColor: 'badge-facilities', accent: '#00b894',
+                desc: 'Manage facility checks, cleaning, utilities and building maintenance',
+                sections: ['dashboard', 'tasks', 'checklist', 'inventory', 'schedule', 'profile']
+            },
+            general: {
+                icon: '🔧', label: 'General Maintenance', color: 'general', navColor: 'badge-general', accent: '#1a5f7a',
+                desc: 'Manage work orders, facilities, inventory and scheduled maintenance',
+                sections: ['dashboard', 'tasks', 'checklist', 'inventory', 'schedule', 'profile']
+            }
+        };
+        const role = ROLES[roleKey];
+
+        // ── State ──────────────────────────────────────────
+        let tasks = JSON.parse(localStorage.getItem('maintTasks') || '[]');
+        let inventory = JSON.parse(localStorage.getItem('maintInventory') || '[]');
+        let weekOffset = 0;
+
+        const CHECKLIST = {
+            it: [
+                { id: 'it1', label: 'Server room temperature checked', note: 'Should be 18–24°C' },
+                { id: 'it2', label: 'UPS battery status checked', note: 'All units above 80%' },
+                { id: 'it3', label: 'Network switches online', note: 'Core, distribution and access' },
+                { id: 'it4', label: 'WiFi access points functional', note: 'All wards and reception' },
+                { id: 'it5', label: 'CCTV recording systems verified', note: 'All cameras recording' },
+                { id: 'it6', label: 'Backup completed successfully', note: 'Check last night\'s backup log' },
+                { id: 'it7', label: 'Nurse call system tested', note: 'Spot-check all wards' },
+            ],
+            mechanic: [
+                { id: 'mv1', label: 'All ambulance fuel levels checked', note: 'Must be above 50%' },
+                { id: 'mv2', label: 'Ambulance medical kits verified', note: 'Defib, O2, trauma kits' },
+                { id: 'mv3', label: 'Vehicle tyres inspected', note: 'Tread depth and pressure' },
+                { id: 'mv4', label: 'Vehicle lights and sirens tested', note: 'All units' },
+                { id: 'mv5', label: 'Oil and fluid levels checked', note: 'AMB001–AMB004' },
+                { id: 'mv6', label: 'Stretcher mechanisms inspected', note: 'Lock, adjust, sanitise' },
+                { id: 'mv7', label: 'Service due dates reviewed', note: 'Flag overdue services' },
+            ],
+            facilities: [
+                { id: 'fc1', label: 'All wards cleaned and mopped', note: 'Morning and afternoon rounds' },
+                { id: 'fc2', label: 'Toilets cleaned and sanitised', note: 'Patient and staff areas' },
+                { id: 'fc3', label: 'Hand sanitiser dispensers refilled', note: 'Entrance, wards, toilets' },
+                { id: 'fc4', label: 'Waste bins emptied and labelled', note: 'Medical and general waste' },
+                { id: 'fc5', label: 'Fire extinguishers visible and tagged', note: 'All corridors' },
+                { id: 'fc6', label: 'Emergency exits clear', note: 'No obstructions' },
+                { id: 'fc7', label: 'HVAC filters inspected', note: 'Theatre and ICU priority' },
+                { id: 'fc8', label: 'Generator fuel level checked', note: 'Above 50%' },
+            ],
+            general: [
+                { id: 'gn1', label: 'Generator fuel level checked', note: 'Above 50%' },
+                { id: 'gn2', label: 'Emergency lighting tested', note: 'Corridors and exits' },
+                { id: 'gn3', label: 'Fire extinguishers checked', note: 'Pressure gauges' },
+                { id: 'gn4', label: 'Emergency exits clear', note: 'No obstructions' },
+                { id: 'gn5', label: 'HVAC filters inspected', note: 'ICU and theatre priority' },
+                { id: 'gn6', label: 'Hand sanitiser dispensers refilled', note: 'All areas' },
+                { id: 'gn7', label: 'Waste disposal completed', note: 'Medical and general' },
+            ]
+        };
+
+        // ── Build UI ────────────────────────────────────────
+        function buildUI() {
+            // Navbar
+            document.getElementById('navIcon').textContent = role.icon;
+            document.getElementById('navTitle').textContent = `MediCare — ${role.label}`;
+            document.getElementById('navName').textContent = cu.name;
+            const badge = document.getElementById('deptBadge');
+            badge.textContent = role.label;
+            badge.className = `dept-badge ${role.navColor}`;
+
+            // Sidebar nav
+            const navDefs = {
+                dashboard: { icon: '📊', label: 'Dashboard' },
+                tasks: { icon: '📋', label: 'Work Orders' },
+                tickets: { icon: '🎫', label: 'IT Tickets' },
+                devices: { icon: '🖥️', label: 'Devices' },
+                vehicles: { icon: '🚑', label: 'Fleet / Vehicles' },
+                checklist: { icon: '✅', label: roleKey === 'it' ? 'Daily IT Check' : roleKey === 'mechanic' ? 'Vehicle Checks' : 'Daily Checklist' },
+                inventory: { icon: '📦', label: 'Inventory' },
+                schedule: { icon: '📅', label: 'Schedule' },
+                profile: { icon: '👤', label: 'My Profile' },
+            };
+            const sidebar = document.getElementById('sidebar');
+            sidebar.innerHTML = `<div class="nav-section"><div class="nav-section-title">Navigation</div>` +
+                role.sections.map((s, i) => {
+                    const n = navDefs[s];
+                    return `<div class="nav-item ${i === 0 ? 'active' : ''}" onclick="showSection('${s}',this)">${n.icon} ${n.label}</div>`;
+                }).join('') + '</div>';
+
+            // Main sections
+            const main = document.getElementById('mainArea');
+            main.innerHTML = role.sections.map(s => `<section id="sec-${s}" class="section ${s === 'dashboard' ? 'active' : ''}"></section>`).join('');
+
+            buildDashboard();
+            buildTasks();
+            if (roleKey === 'it') { buildTickets(); buildDevices(); }
+            if (roleKey === 'mechanic') buildVehicles();
+            if (roleKey === 'facilities' || roleKey === 'general') buildSchedule();
+            buildChecklist();
+            buildInventory();
+            buildProfile();
+        }
+
+        // ── DASHBOARD ─────────────────────────────────────
+        function buildDashboard() {
+            const el = document.getElementById('sec-dashboard');
+            const open = tasks.filter(t => t.status === 'open').length;
+            const prog = tasks.filter(t => t.status === 'in-progress').length;
+            const today = new Date().toISOString().split('T')[0];
+            const done = tasks.filter(t => t.status === 'done' && t.completedDate === today).length;
+            const urgent = tasks.filter(t => t.priority === 'urgent' && t.status !== 'done').length;
+
+            let roleStats = '';
+            if (roleKey === 'it') {
+                const inv = inventory.filter(i => i.category === 'IT Hardware');
+                roleStats = `<div class="stat purple"><div class="stat-val">${inv.length}</div><div class="stat-lbl">IT Hardware Items</div></div>`;
+            } else if (roleKey === 'mechanic') {
+                const emps = JSON.parse(localStorage.getItem('employees') || '{}');
+                roleStats = `<div class="stat teal"><div class="stat-val">${(emps.ambulance || []).length}</div><div class="stat-lbl">Vehicles in Fleet</div></div>`;
+            }
+
+            const urgentTasks = tasks.filter(t => (t.priority === 'urgent' || t.priority === 'high') && t.status !== 'done').slice(0, 5);
+            const log = JSON.parse(localStorage.getItem('maintLog') || '[]').slice(0, 6);
+
+            el.innerHTML = `
+            <div class="page-header"><h1>${role.icon} ${role.label} Dashboard</h1><p id="greetLine"></p></div>
+            <div class="role-banner ${role.color}">
+                <div class="role-icon">${role.icon}</div>
+                <div><h2>${cu.name}</h2><p>${role.desc}</p><p style="margin-top:6px;opacity:0.75;font-size:0.82rem">Department: ${cu.department || 'Maintenance'} &nbsp;|&nbsp; ID: ${cu.id}</p></div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat orange"><div class="stat-val">${open}</div><div class="stat-lbl">Open Orders</div></div>
+                <div class="stat blue"><div class="stat-val">${prog}</div><div class="stat-lbl">In Progress</div></div>
+                <div class="stat green"><div class="stat-val">${done}</div><div class="stat-lbl">Done Today</div></div>
+                <div class="stat red"><div class="stat-val">${urgent}</div><div class="stat-lbl">Urgent Issues</div></div>
+                ${roleStats}
+            </div>
+            <div class="two-col">
+                <div class="card">
+                    <div class="card-header"><div class="card-title">🚨 Urgent / High Priority</div><button class="btn btn-primary btn-sm" onclick="openTaskModal()">+ Log Issue</button></div>
+                    <div class="card-body">${urgentTasks.length ? urgentTasks.map(t => `
+                        <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f1f3f5">
+                            <span class="pri-dot dot-${t.priority}"></span>
+                            <div style="flex:1"><strong style="font-size:0.88rem">${t.title}</strong><p style="font-size:0.78rem;color:#636e72">${t.location}</p></div>
+                            <span class="badge badge-${t.priority}">${t.priority}</span>
+                        </div>`).join('') : '<div style="text-align:center;padding:30px;color:#b2bec3"><div style="font-size:2.5rem;margin-bottom:8px">✅</div><p>No urgent issues</p></div>'}
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><div class="card-title">⚡ Quick Actions</div></div>
+                    <div class="card-body">
+                        <div class="quick-grid">
+                            <button class="quick-btn" onclick="openTaskModal()"><span class="qi">📝</span><strong>Log Issue</strong><p>Report a problem</p></button>
+                            <button class="quick-btn" onclick="showSection('checklist',null)"><span class="qi">✅</span><strong>Daily Check</strong><p>Complete checks</p></button>
+                            <button class="quick-btn" onclick="showSection('inventory',null)"><span class="qi">📦</span><strong>Inventory</strong><p>Check stock</p></button>
+                            <button class="quick-btn" onclick="showSection('${roleKey === 'it' ? 'tickets' : roleKey === 'mechanic' ? 'vehicles' : 'tasks'}',null)"><span class="qi">${roleKey === 'it' ? '🎫' : roleKey === 'mechanic' ? '🚑' : '📋'}</span><strong>${roleKey === 'it' ? 'Tickets' : roleKey === 'mechanic' ? 'Fleet' : 'Orders'}</strong><p>View all</p></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><div class="card-title">📜 Recent Activity</div></div>
+                <div class="card-body">${log.length ? log.map(e => `<div class="log-entry"><div class="log-icon lg-${e.color}">${e.icon}</div><div class="log-body"><strong>${e.title}</strong><p>${e.desc}</p></div><div class="log-time">${e.time}</div></div>`).join('') : '<p style="color:#b2bec3;font-size:0.88rem;text-align:center;padding:20px">No recent activity</p>'}</div>
+            </div>`;
+            document.getElementById('greetLine').textContent = getGreeting() + ', ' + cu.name.split(' ')[0] + '!';
+        }
+
+        function getGreeting() { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; }
+
+        // ── TASKS / WORK ORDERS ──────────────────────────
+        function buildTasks() {
+            const ids = roleKey === 'it' ? ['tasks'] : ['tasks'];
+            const el = document.getElementById('sec-tasks');
+            if (!el) return;
+            el.innerHTML = `
+            <div class="page-header"><h1>📋 Work Orders</h1><p>All maintenance requests and work orders</p></div>
+            <div class="card">
+                <div class="card-header">
+                    <div style="display:flex;gap:10px;flex-wrap:wrap">
+                        <select id="fStatus" onchange="renderTasks()" style="padding:7px 11px;border:1.5px solid #dee2e6;border-radius:7px;font-size:0.85rem"><option value="all">All Statuses</option><option value="open">Open</option><option value="in-progress">In Progress</option><option value="done">Completed</option></select>
+                        <select id="fPriority" onchange="renderTasks()" style="padding:7px 11px;border:1.5px solid #dee2e6;border-radius:7px;font-size:0.85rem"><option value="all">All Priorities</option><option value="urgent">Urgent</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="openTaskModal()">+ Log Issue</button>
+                </div>
+                <div class="card-body table-wrap"><table><thead><tr><th>ID</th><th>Title</th><th>Location</th><th>Priority</th><th>Status</th><th>Due</th><th>Actions</th></tr></thead><tbody id="tasksBody"></tbody></table></div>
+            </div>`;
+            renderTasks();
+            if (!tasks.length) seedTasks();
+        }
+
+        function renderTasks() {
+            const el = document.getElementById('tasksBody'); if (!el) return;
+            const sf = document.getElementById('fStatus')?.value || 'all';
+            const pf = document.getElementById('fPriority')?.value || 'all';
+            let data = tasks;
+            if (sf !== 'all') data = data.filter(t => t.status === sf);
+            if (pf !== 'all') data = data.filter(t => t.priority === pf);
+            if (!data.length) { el.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:35px;color:#b2bec3">No work orders found</td></tr>'; return; }
+            el.innerHTML = data.map(t => `<tr>
+            <td><code style="font-size:0.78rem;color:#636e72">${t.id}</code></td>
+            <td><strong>${t.title}</strong><br><span style="font-size:0.78rem;color:#636e72">${t.category}</span></td>
+            <td>${t.location}</td>
+            <td><span class="pri-dot dot-${t.priority}"></span>${t.priority}</td>
+            <td><span class="badge badge-${t.status === 'open' ? 'open' : t.status === 'in-progress' ? 'progress' : 'done'}">${t.status}</span></td>
+            <td style="font-size:0.82rem">${t.due || '—'}</td>
+            <td><button class="btn btn-primary btn-sm" onclick="openUpdate('${t.id}')">Update</button> <button class="btn btn-danger btn-sm" onclick="deleteTask('${t.id}')">Del</button></td>
+        </tr>`).join('');
+        }
+
+        // ── IT TICKETS ───────────────────────────────────
+        function buildTickets() {
+            const el = document.getElementById('sec-tickets'); if (!el) return;
+            const itTasks = tasks.filter(t => t.category === 'IT / Network');
+            el.innerHTML = `
+            <div class="page-header"><h1>🎫 IT Tickets</h1><p>Network, software and hardware support requests</p></div>
+            <div class="card">
+                <div class="card-header"><div class="card-title">Active IT Tickets</div><button class="btn btn-purple btn-sm" onclick="openTaskModal('IT / Network')">+ New Ticket</button></div>
+                <div class="card-body table-wrap"><table><thead><tr><th>ID</th><th>Issue</th><th>Location</th><th>Priority</th><th>Status</th><th>Due</th><th>Actions</th></tr></thead>
+                <tbody>${itTasks.length ? itTasks.map(t => `<tr>
+                    <td><code style="font-size:0.78rem;color:#6c5ce7">${t.id}</code></td>
+                    <td><strong>${t.title}</strong></td><td>${t.location}</td>
+                    <td><span class="pri-dot dot-${t.priority}"></span>${t.priority}</td>
+                    <td><span class="badge badge-${t.status === 'open' ? 'open' : t.status === 'in-progress' ? 'progress' : 'done'}">${t.status}</span></td>
+                    <td style="font-size:0.82rem">${t.due || '—'}</td>
+                    <td><button class="btn btn-purple btn-sm" onclick="openUpdate('${t.id}')">Update</button> <button class="btn btn-danger btn-sm" onclick="deleteTask('${t.id}')">Del</button></td>
+                </tr>`).join('') : '<tr><td colspan="7" style="text-align:center;padding:35px;color:#b2bec3">No IT tickets. <a href="#" onclick="openTaskModal(\'IT / Network\')" style="color:#6c5ce7">Log one.</a></td></tr>'}</tbody></table></div>
+            </div>`;
+        }
+
+        // ── DEVICES (IT) ─────────────────────────────────
+        function buildDevices() {
+            const el = document.getElementById('sec-devices'); if (!el) return;
+            const devices = JSON.parse(localStorage.getItem('itDevices') || '[]');
+            if (!devices.length) {
+                const seed = [
+                    { id: 'SRV-001', name: 'Main Application Server', type: 'Server', ip: '192.168.1.10', status: 'online', location: 'IT Room' },
+                    { id: 'SRV-002', name: 'Database Server', type: 'Server', ip: '192.168.1.11', status: 'online', location: 'IT Room' },
+                    { id: 'SW-001', name: 'Core Network Switch', type: 'Switch', ip: '192.168.1.1', status: 'online', location: 'IT Room' },
+                    { id: 'AP-001', name: 'WiFi AP — Reception', type: 'Access Point', ip: '192.168.1.50', status: 'online', location: 'Reception' },
+                    { id: 'AP-002', name: 'WiFi AP — Ward 1', type: 'Access Point', ip: '192.168.1.51', status: 'warning', location: 'Ward 1' },
+                    { id: 'AP-003', name: 'WiFi AP — ICU', type: 'Access Point', ip: '192.168.1.52', status: 'online', location: 'ICU' },
+                    { id: 'PC-001', name: 'Reception Workstation', type: 'Workstation', ip: '192.168.1.100', status: 'online', location: 'Reception' },
+                    { id: 'PC-002', name: 'Pharmacy Workstation', type: 'Workstation', ip: '192.168.1.101', status: 'offline', location: 'Pharmacy' },
+                    { id: 'NAS-001', name: 'Backup NAS Storage', type: 'Storage', ip: '192.168.1.20', status: 'online', location: 'IT Room' },
+                ];
+                localStorage.setItem('itDevices', JSON.stringify(seed));
+            }
+            const devs = JSON.parse(localStorage.getItem('itDevices') || '[]');
+            const online = devs.filter(d => d.status === 'online').length;
+            const offline = devs.filter(d => d.status === 'offline').length;
+            const warn = devs.filter(d => d.status === 'warning').length;
+            el.innerHTML = `
+            <div class="page-header"><h1>🖥️ Device Monitor</h1><p>Network devices and workstations status</p></div>
+            <div class="stats-grid">
+                <div class="stat green"><div class="stat-val">${online}</div><div class="stat-lbl">Online</div></div>
+                <div class="stat red"><div class="stat-val">${offline}</div><div class="stat-lbl">Offline</div></div>
+                <div class="stat orange"><div class="stat-val">${warn}</div><div class="stat-lbl">Warning</div></div>
+                <div class="stat blue"><div class="stat-val">${devs.length}</div><div class="stat-lbl">Total Devices</div></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><div class="card-title">Network Device Status</div><button class="btn btn-purple btn-sm" onclick="refreshDevices()">↻ Refresh</button></div>
+                <div class="card-body">
+                    <div class="device-grid">${devs.map(d => `
+                        <div class="device-card" onclick="logDeviceIssue('${d.id}','${d.name}')">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                                <span style="font-size:1.3rem">${d.type === 'Server' ? '🖥️' : d.type === 'Switch' ? '🔀' : d.type === 'Access Point' ? '📡' : d.type === 'Storage' ? '💾' : '🖥️'}</span>
+                                <span class="device-status ds-${d.status}"></span>
+                            </div>
+                            <div style="font-size:0.85rem;font-weight:600;margin-bottom:3px">${d.name}</div>
+                            <div style="font-size:0.75rem;color:#636e72">${d.ip}</div>
+                            <div style="font-size:0.75rem;color:#636e72">${d.location}</div>
+                            <div style="margin-top:6px"><span class="badge ${d.status === 'online' ? 'badge-done' : d.status === 'offline' ? 'badge-urgent' : 'badge-medium'}">${d.status}</span></div>
+                        </div>`).join('')}
+                    </div>
+                    <p style="font-size:0.78rem;color:#b2bec3;margin-top:8px">Click a device card to log an issue for it</p>
+                </div>
+            </div>`;
+        }
+
+        function refreshDevices() { const devs = JSON.parse(localStorage.getItem('itDevices') || '[]'); devs.forEach(d => { if (Math.random() > 0.85) d.status = d.status === 'online' ? 'warning' : 'online'; }); localStorage.setItem('itDevices', JSON.stringify(devs)); buildDevices(); showToast('Devices refreshed', 'success'); }
+        function logDeviceIssue(id, name) { openTaskModal('IT / Network'); setTimeout(() => { document.getElementById('tTitle').value = `Issue with: ${name}`; document.getElementById('tLocation').value = 'IT Room'; }, 100); }
+
+        // ── VEHICLES (MECHANIC) ──────────────────────────
+        function buildVehicles() {
+            const el = document.getElementById('sec-vehicles'); if (!el) return;
+            const emps = JSON.parse(localStorage.getItem('employees') || '{}');
+            const ambs = emps.ambulance || [];
+            el.innerHTML = `
+            <div class="page-header"><h1>🚑 Fleet Management</h1><p>Ambulance and vehicle status, maintenance logs</p></div>
+            <div class="stats-grid">
+                <div class="stat green"><div class="stat-val">${ambs.filter(a => a.status === 'available').length}</div><div class="stat-lbl">Available</div></div>
+                <div class="stat orange"><div class="stat-val">${ambs.filter(a => a.status === 'busy').length}</div><div class="stat-lbl">On Call</div></div>
+                <div class="stat red"><div class="stat-val">${ambs.filter(a => a.serviceNeeded).length}</div><div class="stat-lbl">Service Needed</div></div>
+                <div class="stat blue"><div class="stat-val">${ambs.length}</div><div class="stat-lbl">Total Vehicles</div></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><div class="card-title">🚑 Vehicle Status</div></div>
+                <div class="card-body">${ambs.length ? ambs.map(a => `
+                    <div class="vehicle-card">
+                        <div class="vehicle-icon">🚑</div>
+                        <div style="flex:1">
+                            <div style="font-weight:600">${a.name}</div>
+                            <div style="font-size:0.82rem;color:#636e72">ID: ${a.id} &nbsp;|&nbsp; City: ${a.city} &nbsp;|&nbsp; Vehicle: ${a.vehicle || 'N/A'}</div>
+                        </div>
+                        <span class="badge ${a.status === 'available' ? 'badge-done' : 'badge-progress'}">${a.status}</span>
+                        <button class="btn btn-warning btn-sm" onclick="logVehicleIssue('${a.id}','${a.name}')">Log Issue</button>
+                    </div>`).join('') : '<div style="text-align:center;padding:30px;color:#b2bec3">No vehicles registered</div>'}
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><div class="card-title">🔧 Vehicle Work Orders</div><button class="btn btn-warning btn-sm" onclick="openTaskModal('Vehicle / Ambulance')">+ Vehicle Issue</button></div>
+                <div class="card-body table-wrap"><table><thead><tr><th>ID</th><th>Issue</th><th>Vehicle</th><th>Priority</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody>${tasks.filter(t => t.category === 'Vehicle / Ambulance').map(t => `<tr>
+                    <td><code style="font-size:0.78rem">${t.id}</code></td>
+                    <td><strong>${t.title}</strong></td><td>${t.location}</td>
+                    <td><span class="pri-dot dot-${t.priority}"></span>${t.priority}</td>
+                    <td><span class="badge badge-${t.status === 'open' ? 'open' : t.status === 'in-progress' ? 'progress' : 'done'}">${t.status}</span></td>
+                    <td><button class="btn btn-primary btn-sm" onclick="openUpdate('${t.id}')">Update</button></td>
+                </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;padding:25px;color:#b2bec3">No vehicle work orders</td></tr>'}
+                </tbody></table></div>
+            </div>`;
+        }
+        function logVehicleIssue(id, name) { openTaskModal('Vehicle / Ambulance'); setTimeout(() => { document.getElementById('tTitle').value = `Vehicle issue: ${name}`; document.getElementById('tLocation').value = 'Ambulance Bay'; }, 100); }
+
+        // ── CHECKLIST ────────────────────────────────────
+        function buildChecklist() {
+            const el = document.getElementById('sec-checklist'); if (!el) return;
+            const items = CHECKLIST[roleKey] || CHECKLIST.general;
+            const todayKey = 'maintChecklist_' + new Date().toISOString().split('T')[0];
+            const saved = JSON.parse(localStorage.getItem(todayKey) || '{}');
+            const done = items.filter(i => saved[i.id]).length;
+            el.innerHTML = `
+            <div class="page-header"><h1>✅ Daily ${roleKey === 'it' ? 'IT' : roleKey === 'mechanic' ? 'Vehicle' : roleKey === 'facilities' ? 'Facility' : ''} Checklist</h1>
+            <p>For ${new Date().toLocaleDateString('en-ZA', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p></div>
+            <div class="card">
+                <div class="card-header"><div class="card-title">Progress: ${done}/${items.length} completed</div>
+                <div style="display:flex;gap:8px"><button class="btn btn-success btn-sm" onclick="submitChecklist()">✓ Submit Report</button><button class="btn btn-light btn-sm" onclick="resetChecklist()">Reset</button></div></div>
+                <div class="card-body">
+                    <div style="background:#f8f9fa;border-radius:10px;height:8px;margin-bottom:18px;overflow:hidden"><div style="background:linear-gradient(135deg,#1a5f7a,#57c5b6);height:100%;width:${Math.round(done / items.length * 100)}%;transition:width 0.5s;border-radius:10px"></div></div>
+                    <ul class="checklist" id="checklistEl">${items.map(i => `
+                        <li><input type="checkbox" id="${i.id}" ${saved[i.id] ? 'checked' : ''} onchange="updateProgress()">
+                        <div class="check-label"><label for="${i.id}" style="font-size:0.9rem;cursor:pointer;font-weight:500">${i.label}</label><span class="check-note">${i.note}</span></div></li>`).join('')}
+                    </ul>
+                </div>
+            </div>`;
+        }
+
+        function updateProgress() {
+            const items = CHECKLIST[roleKey] || CHECKLIST.general;
+            const done = items.filter(i => document.getElementById(i.id)?.checked).length;
+            document.querySelector('.card-title') && (document.querySelector('#sec-checklist .card-title').textContent = `Progress: ${done}/${items.length} completed`);
+            const bar = document.querySelector('#sec-checklist div[style*="background:#f8f9fa"] div');
+            if (bar) bar.style.width = Math.round(done / items.length * 100) + '%';
+        }
+
+        function submitChecklist() {
+            const items = CHECKLIST[roleKey] || CHECKLIST.general;
+            const data = {}; items.forEach(i => { data[i.id] = !!document.getElementById(i.id)?.checked; });
+            const done = Object.values(data).filter(Boolean).length;
+            if (done < items.length * 0.5 && !confirm(`Only ${done}/${items.length} items checked. Submit anyway?`)) return;
+            localStorage.setItem('maintChecklist_' + new Date().toISOString().split('T')[0], JSON.stringify(data));
+            addLog('✅', 'green', 'Daily checklist submitted', `${done}/${items.length} items completed`);
+            showToast('Checklist submitted!', 'success');
+        }
+
+        function resetChecklist() {
+            const items = CHECKLIST[roleKey] || CHECKLIST.general;
+            items.forEach(i => { const e = document.getElementById(i.id); if (e) e.checked = false; });
+            updateProgress();
+        }
+
+        // ── SCHEDULE ─────────────────────────────────────
+        function buildSchedule() {
+            const el = document.getElementById('sec-schedule'); if (!el) return;
+            el.innerHTML = `
+            <div class="page-header"><h1>📅 Weekly Schedule</h1><p>Planned maintenance tasks this week</p></div>
+            <div class="card">
+                <div class="card-header"><div class="card-title" id="weekLabel">This Week</div><div style="display:flex;gap:8px"><button class="btn btn-light btn-sm" onclick="changeWeek(-1)">← Prev</button><button class="btn btn-light btn-sm" onclick="changeWeek(1)">Next →</button></div></div>
+                <div class="card-body"><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px" id="weekGrid"></div></div>
+            </div>`;
+            renderScheduleGrid();
+        }
+
+        function renderScheduleGrid() {
+            const today = new Date();
+            const mon = new Date(today); mon.setDate(today.getDate() - today.getDay() + 1 + weekOffset * 7);
+            const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            const grid = document.getElementById('weekGrid'); if (!grid) return;
+            grid.innerHTML = days.map((d, i) => {
+                const day = new Date(mon); day.setDate(mon.getDate() + i);
+                const isToday = day.toDateString() === new Date().toDateString();
+                const ds = day.toISOString().split('T')[0];
+                const dt = tasks.filter(t => t.due === ds && t.status !== 'done').slice(0, 3);
+                return `<div style="background:${isToday ? '#e8f5e9' : '#f8f9fa'};border:${isToday ? '2px solid #00b894' : '1.5px solid #dee2e6'};border-radius:10px;padding:10px;min-height:90px;font-size:0.8rem">
+                <div style="font-weight:700;color:#636e72;margin-bottom:6px">${d} ${day.getDate()}</div>
+                ${dt.map(t => `<div style="background:${t.priority === 'urgent' ? '#fce4ec' : '#e3f2fd'};color:${t.priority === 'urgent' ? '#c62828' : '#1565c0'};border-radius:5px;padding:3px 6px;margin-bottom:3px;font-size:0.72rem;cursor:pointer" onclick="openUpdate('${t.id}')">${t.title.substring(0, 20)}...</div>`).join('')}
+                ${dt.length === 0 ? '<span style="color:#b2bec3;font-size:0.72rem">Free</span>' : ''}
+            </div>`;
+            }).join('');
+            const end = new Date(mon); end.setDate(mon.getDate() + 6);
+            const lbl = document.getElementById('weekLabel');
+            if (lbl) lbl.textContent = `${mon.toLocaleDateString('en-ZA', { day: 'numeric', month: 'short' })} – ${end.toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+        }
+
+        function changeWeek(d) { weekOffset += d; renderScheduleGrid(); }
+
+        // ── INVENTORY ─────────────────────────────────────
+        function buildInventory() {
+            const el = document.getElementById('sec-inventory'); if (!el) return;
+            el.innerHTML = `
+            <div class="page-header"><h1>📦 Inventory</h1><p>Parts, supplies and equipment stock</p></div>
+            <div class="card">
+                <div class="card-header"><div class="card-title">Stock Overview</div><button class="btn btn-primary btn-sm" onclick="openModal('stockModal')">+ Add Item</button></div>
+                <div class="card-body table-wrap"><table><thead><tr><th>Item</th><th>Category</th><th>Qty</th><th>Min</th><th>Unit</th><th>Location</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody id="invBody"></tbody></table></div>
+            </div>`;
+            renderInventory();
+            if (!inventory.length) seedInventory();
+        }
+
+        function renderInventory() {
+            const el = document.getElementById('invBody'); if (!el) return;
+            if (!inventory.length) { el.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:35px;color:#b2bec3">No items. Add some above.</td></tr>'; return; }
+            el.innerHTML = inventory.map((item, i) => {
+                const low = item.qty <= item.min;
+                return `<tr>
+                <td><strong>${item.name}</strong></td><td>${item.category}</td>
+                <td><strong ${low ? 'class="stock-low"' : ''}>${item.qty}</strong></td>
+                <td>${item.min}</td><td>${item.unit || 'pcs'}</td><td>${item.location || '—'}</td>
+                <td><span class="badge ${low ? 'badge-urgent' : 'badge-done'}">${low ? 'Low Stock' : 'OK'}</span></td>
+                <td><button class="btn btn-success btn-sm" onclick="adj(${i},1)">+</button> <button class="btn btn-warning btn-sm" onclick="adj(${i},-1)">−</button> <button class="btn btn-danger btn-sm" onclick="delStock(${i})">Del</button></td>
+            </tr>`;
+            }).join('');
+        }
+
+        function adj(i, d) { inventory[i].qty = Math.max(0, inventory[i].qty + d); saveInv(); renderInventory(); }
+        function delStock(i) { if (!confirm('Remove?')) return; inventory.splice(i, 1); saveInv(); renderInventory(); }
+        function saveInv() { localStorage.setItem('maintInventory', JSON.stringify(inventory)); }
+        function saveStock() {
+            const name = document.getElementById('sName').value.trim(); if (!name) { showToast('Item name required', 'error'); return; }
+            inventory.push({ name, category: document.getElementById('sCat').value, qty: parseInt(document.getElementById('sQty').value) || 0, min: parseInt(document.getElementById('sMin').value) || 5, unit: document.getElementById('sUnit').value || 'pcs', location: document.getElementById('sLoc').value });
+            saveInv(); renderInventory(); closeModal('stockModal'); showToast('Item added', 'success');
+        }
+
+        // ── PROFILE ──────────────────────────────────────
+        function buildProfile() {
+            const el = document.getElementById('sec-profile'); if (!el) return;
+            el.innerHTML = `
+            <div class="page-header"><h1>👤 My Profile</h1><p>Your account information</p></div>
+            <div class="profile-banner">
+                <div class="profile-avatar">${role.icon}</div>
+                <div><h2>${cu.name}</h2><p>${cu.department || 'Maintenance'}</p><p style="margin-top:5px;opacity:0.75;font-size:0.82rem">ID: ${cu.id}</p></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><div class="card-title">Contact Details</div></div>
+                <div class="card-body">
+                    <table style="width:100%;font-size:0.9rem">
+                        ${[['Employee ID', cu.id], ['Name', cu.name], ['Email', cu.email || '—'], ['Phone', cu.phone || '—'], ['Department', cu.department || 'Maintenance'], ['Role', role.label]].map(([l, v]) => `<tr><td style="padding:10px;color:#636e72;width:150px">${l}</td><td style="padding:10px;font-weight:500">${v}</td></tr>`).join('')}
+                    </table>
+                </div>
+            </div>`;
+        }
+
+        // ── TASK MODAL ────────────────────────────────────
+        function openTaskModal(defaultCat) {
+            document.getElementById('tTitle').value = '';
+            document.getElementById('tLocation').value = '';
+            document.getElementById('tDesc').value = '';
+            document.getElementById('tDue').valueAsDate = new Date();
+            document.getElementById('tPriority').value = 'medium';
+            if (defaultCat) { const opt = [...document.getElementById('tCategory').options].find(o => o.value === defaultCat || o.textContent === defaultCat); if (opt) document.getElementById('tCategory').value = opt.value; }
+            openModal('taskModal');
+        }
+
+        function saveTask() {
+            const title = document.getElementById('tTitle').value.trim();
+            const loc = document.getElementById('tLocation').value;
+            const desc = document.getElementById('tDesc').value.trim();
+            if (!title || !loc || !desc) { showToast('Fill in all required fields', 'error'); return; }
+            const t = { id: 'WO' + String(tasks.length + 1).padStart(3, '0'), title, location: loc, category: document.getElementById('tCategory').value, priority: document.getElementById('tPriority').value, description: desc, due: document.getElementById('tDue').value, date: new Date().toLocaleDateString('en-ZA'), status: 'open', assigned: cu.name, createdBy: cu.name };
+            tasks.unshift(t);
+            localStorage.setItem('maintTasks', JSON.stringify(tasks));
+            addLog('📝', 'blue', 'Work order logged', `${title} — ${loc}`);
+            showToast('Work order submitted!', 'success');
+            closeModal('taskModal');
+            renderTasks();
+            buildDashboard();
+        }
+
+        function openUpdate(id) {
+            const t = tasks.find(x => x.id === id); if (!t) return;
+            document.getElementById('uTaskId').value = id;
+            document.getElementById('uStatus').value = t.status;
+            document.getElementById('uPriority').value = t.priority;
+            document.getElementById('uNotes').value = '';
+            openModal('updateModal');
+        }
+
+        function saveUpdate() {
+            const id = document.getElementById('uTaskId').value;
+            const t = tasks.find(x => x.id === id); if (!t) return;
+            t.status = document.getElementById('uStatus').value;
+            t.priority = document.getElementById('uPriority').value;
+            if (t.status === 'done') t.completedDate = new Date().toISOString().split('T')[0];
+            localStorage.setItem('maintTasks', JSON.stringify(tasks));
+            addLog('🔧', 'blue', 'Work order updated', `${t.title} → ${t.status}`);
+            showToast('Updated!', 'success');
+            closeModal('updateModal');
+            renderTasks(); buildDashboard();
+        }
+
+        function deleteTask(id) {
+            if (!confirm('Delete this work order?')) return;
+            tasks = tasks.filter(t => t.id !== id);
+            localStorage.setItem('maintTasks', JSON.stringify(tasks));
+            renderTasks(); buildDashboard(); showToast('Deleted');
+        }
+
+        // ── HELPERS ───────────────────────────────────────
+        function showSection(name, navEl) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            const sec = document.getElementById('sec-' + name); if (sec) sec.classList.add('active');
+            if (navEl) navEl.classList.add('active');
+            // Rebuild sections that need fresh data
+            if (name === 'dashboard') buildDashboard();
+            if (name === 'tasks') renderTasks();
+            if (name === 'devices') buildDevices();
+            if (name === 'vehicles') buildVehicles();
+            if (name === 'checklist') buildChecklist();
+            if (name === 'inventory') renderInventory();
+            if (name === 'schedule') renderScheduleGrid();
+        }
+
+        function openModal(id) { document.getElementById(id).classList.add('show'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+        function addLog(icon, color, title, desc) {
+            const log = JSON.parse(localStorage.getItem('maintLog') || '[]');
+            log.unshift({ icon, color, title, desc, time: new Date().toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' }) });
+            localStorage.setItem('maintLog', JSON.stringify(log.slice(0, 50)));
+        }
+
+        function showToast(msg, type = '') {
+            const t = document.getElementById('toast');
+            t.textContent = msg; t.className = 'toast ' + type; t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        function logout() { sessionStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
+
+        // ── SEED ──────────────────────────────────────────
+        function seedTasks() {
+            const nd = d => { const x = new Date(); x.setDate(x.getDate() + d); return x.toISOString().split('T')[0]; };
+            tasks = [
+                { id: 'WO001', title: 'Air conditioner not cooling', location: 'Ward 2', category: 'HVAC / Air Conditioning', priority: 'high', description: 'AC not cooling', assigned: cu.name, due: nd(0), date: new Date().toLocaleDateString('en-ZA'), status: 'in-progress', createdBy: cu.name },
+                { id: 'WO002', title: 'Flickering lights in corridor', location: 'Corridor B', category: 'Electrical', priority: 'medium', description: 'Lights flickering', assigned: cu.name, due: nd(2), date: new Date().toLocaleDateString('en-ZA'), status: 'open', createdBy: cu.name },
+                { id: 'WO003', title: 'Network switch down — IT Room', location: 'IT Room', category: 'IT / Network', priority: 'urgent', description: 'Core switch offline', assigned: cu.name, due: nd(0), date: new Date().toLocaleDateString('en-ZA'), status: 'open', createdBy: cu.name },
+                { id: 'WO004', title: 'AMB002 oil change due', location: 'Ambulance Bay', category: 'Vehicle / Ambulance', priority: 'medium', description: 'Monthly oil change', assigned: cu.name, due: nd(3), date: new Date().toLocaleDateString('en-ZA'), status: 'open', createdBy: cu.name },
+            ];
+            localStorage.setItem('maintTasks', JSON.stringify(tasks));
+        }
+
+        function seedInventory() {
+            inventory = [
+                { name: 'LED Tube Bulb 40W', category: 'Electrical', qty: 24, min: 10, unit: 'pcs', location: 'Storeroom A' },
+                { name: 'Air filter (HVAC)', category: 'HVAC / Air Conditioning', qty: 8, min: 4, unit: 'pcs', location: 'Storeroom A' },
+                { name: 'Hand sanitiser 5L', category: 'Cleaning', qty: 3, min: 6, unit: 'bottles', location: 'Storeroom C' },
+                { name: 'Network cable Cat6 (5m)', category: 'IT Hardware', qty: 15, min: 5, unit: 'pcs', location: 'IT Room' },
+                { name: 'Engine oil 5W-30 (5L)', category: 'Vehicle Parts', qty: 4, min: 3, unit: 'cans', location: 'Garage' },
+                { name: 'Ambulance O2 cylinder', category: 'Medical Support', qty: 6, min: 4, unit: 'pcs', location: 'Ambulance Bay' },
+                { name: 'Circuit breaker 20A', category: 'Electrical', qty: 2, min: 5, unit: 'pcs', location: 'Storeroom A' },
+                { name: 'Disinfectant spray', category: 'Cleaning', qty: 20, min: 10, unit: 'cans', location: 'Storeroom C' },
+            ];
+            saveInv();
+        }
+
+        // ── START ──────────────────────────────────────────
+        buildUI();
+    </script>
+</body>
+</html>

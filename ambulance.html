@@ -1,0 +1,919 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ambulance Dashboard - MediCare Clinic</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+            background: #1a1a2e;
+            min-height: 100vh;
+            color: white
+        }
+
+        .navbar {
+            background: linear-gradient(135deg,#e63946,#c62828);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 15px rgba(230,57,70,0.4)
+        }
+
+        .brand {
+            font-size: 1.4rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px
+        }
+
+        .status-area {
+            display: flex;
+            align-items: center;
+            gap: 12px
+        }
+
+        .toggle {
+            position: relative;
+            width: 56px;
+            height: 28px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex-shrink: 0
+        }
+
+            .toggle.on {
+                background: #00b894
+            }
+
+            .toggle::after {
+                content: "";
+                position: absolute;
+                width: 24px;
+                height: 24px;
+                background: white;
+                border-radius: 50%;
+                top: 2px;
+                left: 2px;
+                transition: all 0.3s;
+                box-shadow: 0 1px 4px rgba(0,0,0,0.3)
+            }
+
+            .toggle.on::after {
+                left: 30px
+            }
+
+        .status-label {
+            font-size: 0.9rem;
+            font-weight: 600
+        }
+
+        .driver-area {
+            display: flex;
+            align-items: center;
+            gap: 12px
+        }
+
+        .logout-btn {
+            background: rgba(0,0,0,0.25);
+            border: none;
+            color: white;
+            padding: 7px 14px;
+            border-radius: 18px;
+            cursor: pointer;
+            font-size: 0.85rem
+        }
+
+        .notif-bar {
+            background: linear-gradient(135deg,#ffeaa7,#fdcb6e);
+            color: #2d3436;
+            padding: 13px 22px;
+            margin: 15px 25px 0;
+            border-radius: 13px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            animation: slideDown 0.4s ease
+        }
+
+            .notif-bar.show {
+                display: flex
+            }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-15px);
+                opacity: 0
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1
+            }
+        }
+
+        .notif-bar .dismiss {
+            background: rgba(0,0,0,0.12);
+            border: none;
+            padding: 7px 13px;
+            border-radius: 7px;
+            cursor: pointer;
+            color: #2d3436;
+            font-size: 0.85rem;
+            margin-left: auto
+        }
+
+        .main {
+            padding: 20px 25px;
+            max-width: 1400px;
+            margin: 0 auto
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4,1fr);
+            gap: 16px;
+            margin-bottom: 20px
+        }
+
+        .scard {
+            background: #16213e;
+            border-radius: 13px;
+            padding: 18px;
+            text-align: center
+        }
+
+            .scard .sv {
+                font-size: 2rem;
+                font-weight: 700;
+                margin-bottom: 4px
+            }
+
+            .scard .sl {
+                font-size: 0.82rem;
+                color: #b2bec3
+            }
+
+            .scard.s1 {
+                border-top: 3px solid #e63946
+            }
+
+            .scard.s2 {
+                border-top: 3px solid #00b894
+            }
+
+            .scard.s3 {
+                border-top: 3px solid #fdcb6e
+            }
+
+            .scard.s4 {
+                border-top: 3px solid #0984e3
+            }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 20px
+        }
+
+        .card {
+            background: #16213e;
+            border-radius: 16px;
+            overflow: hidden
+        }
+
+        .card-head {
+            padding: 18px 22px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+
+        .card-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .card-body {
+            padding: 20px
+        }
+        /* MAP */
+        .map-wrap {
+            height: 360px;
+            background: #0f3460;
+            position: relative;
+            overflow: hidden
+        }
+
+        .map-bg {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background-image: linear-gradient(rgba(255,255,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.04) 1px,transparent 1px);
+            background-size: 35px 35px
+        }
+
+        .road-h {
+            position: absolute;
+            background: rgba(255,255,255,0.12);
+            height: 4px;
+            width: 100%
+        }
+
+        .road-v {
+            position: absolute;
+            background: rgba(255,255,255,0.12);
+            width: 4px;
+            height: 100%
+        }
+
+        .city-label {
+            position: absolute;
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.4);
+            font-weight: 600;
+            letter-spacing: 0.5px
+        }
+
+        .amb-marker {
+            position: absolute;
+            font-size: 1.8rem;
+            transform: translate(-50%,-50%);
+            transition: all 1.8s cubic-bezier(0.25,0.46,0.45,0.94);
+            z-index: 10;
+            filter: drop-shadow(0 0 8px #00b894)
+        }
+
+        .req-pin {
+            position: absolute;
+            font-size: 1.4rem;
+            transform: translate(-50%,-50%);
+            cursor: pointer;
+            z-index: 8;
+            transition: transform 0.2s
+        }
+
+            .req-pin:hover {
+                transform: translate(-50%,-50%) scale(1.3)
+            }
+
+            .req-pin.pulsing {
+                animation: mapPulse 1.2s infinite
+            }
+
+        @keyframes mapPulse {
+            0%,100% {
+                filter: drop-shadow(0 0 4px #e63946)
+            }
+
+            50% {
+                filter: drop-shadow(0 0 14px #e63946)
+            }
+        }
+
+        .map-legend {
+            position: absolute;
+            bottom: 10px;
+            left: 12px;
+            background: rgba(0,0,0,0.55);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            display: flex;
+            gap: 14px
+        }
+
+            .map-legend span {
+                display: flex;
+                align-items: center;
+                gap: 4px
+            }
+        /* CURRENT TRIP */
+        .trip-card {
+            background: linear-gradient(135deg,#00b894,#00cec9);
+            border-radius: 13px;
+            padding: 20px;
+            margin-top: 16px;
+            display: none
+        }
+
+            .trip-card.active {
+                display: block
+            }
+
+        .trip-pulse {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
+            font-weight: 600;
+            font-size: 0.95rem
+        }
+
+        .pulse-dot {
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            animation: pulse 1s infinite
+        }
+
+        @keyframes pulse {
+            0%,100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: 0.3
+            }
+        }
+
+        .trip-info {
+            background: rgba(0,0,0,0.18);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 14px
+        }
+
+        .trip-name {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 4px
+        }
+
+        .trip-sub {
+            font-size: 0.88rem;
+            opacity: 0.85
+        }
+
+        .trip-actions {
+            display: flex;
+            gap: 10px
+        }
+
+        .btn-complete {
+            flex: 1;
+            padding: 13px;
+            background: white;
+            color: #00b894;
+            border: none;
+            border-radius: 9px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.95rem;
+            transition: all 0.2s
+        }
+
+            .btn-complete:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2)
+            }
+
+        .btn-sos {
+            padding: 13px 18px;
+            background: #e63946;
+            color: white;
+            border: none;
+            border-radius: 9px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600
+        }
+        /* REQUESTS */
+        .req-list {
+            max-height: 380px;
+            overflow-y: auto
+        }
+
+        .req-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 13px;
+            padding: 17px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: all 0.25s
+        }
+
+            .req-card:hover {
+                background: rgba(255,255,255,0.08);
+                transform: translateX(4px)
+            }
+
+            .req-card.emergency {
+                border-left: 4px solid #e63946
+            }
+
+            .req-card.scheduled {
+                border-left: 4px solid #ffeaa7
+            }
+
+        .req-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px
+        }
+
+        .req-name {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 3px
+        }
+
+        .req-city {
+            color: #b2bec3;
+            font-size: 0.85rem
+        }
+
+        .req-type {
+            padding: 4px 10px;
+            border-radius: 18px;
+            font-size: 0.75rem;
+            font-weight: 600
+        }
+
+        .type-emergency {
+            background: #e63946
+        }
+
+        .type-scheduled {
+            background: #fdcb6e;
+            color: #2d3436
+        }
+
+        .req-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 0.85rem
+        }
+
+        .meta-label {
+            color: #b2bec3;
+            font-size: 0.75rem
+        }
+
+        .req-actions {
+            display: flex;
+            gap: 8px
+        }
+
+        .btn-accept {
+            flex: 1;
+            padding: 11px;
+            background: linear-gradient(135deg,#00b894,#00cec9);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.88rem;
+            transition: all 0.2s
+        }
+
+            .btn-accept:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 12px rgba(0,184,148,0.35)
+            }
+
+        .btn-decline {
+            padding: 11px 16px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.88rem
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 35px;
+            color: #b2bec3
+        }
+
+        .empty-icon {
+            font-size: 2.8rem;
+            margin-bottom: 10px
+        }
+        /* PICKUPS */
+        .pickup-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 11px;
+            padding: 14px;
+            margin-bottom: 9px;
+            border-left: 3px solid #ffeaa7
+        }
+
+        .pickup-time {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #ffeaa7
+        }
+
+        .pickup-info {
+            margin-top: 7px;
+            font-size: 0.88rem;
+            color: #b2bec3;
+            line-height: 1.6
+        }
+
+        .count-badge {
+            background: #e63946;
+            padding: 4px 11px;
+            border-radius: 18px;
+            font-size: 0.82rem;
+            font-weight: 600
+        }
+
+        .city-select {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            padding: 7px 13px;
+            border-radius: 7px;
+            font-size: 0.85rem
+        }
+
+        @media(max-width:1100px) {
+            .grid {
+                grid-template-columns: 1fr
+            }
+
+            .stats-row {
+                grid-template-columns: repeat(2,1fr)
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="brand">🚑 Ambulance Command</div>
+        <div class="status-area">
+            <span>Status:</span>
+            <div class="toggle on" id="statusToggle" onclick="toggleStatus()"></div>
+            <span class="status-label" id="statusText">Available</span>
+        </div>
+        <div class="driver-area">
+            <div>
+                <div style="font-size:0.9rem;font-weight:600" id="driverName">Driver</div>
+                <div style="font-size:0.75rem;opacity:0.75" id="driverVehicle">Vehicle —</div>
+            </div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <div class="notif-bar" id="notifBar">
+        <span>⚠️</span>
+        <div><div style="font-weight:600;margin-bottom:2px" id="notifTitle">Alert</div><div id="notifMsg" style="font-size:0.88rem"></div></div>
+        <button class="dismiss" onclick="dismissNotif()">Dismiss</button>
+    </div>
+
+    <main class="main">
+        <div class="stats-row">
+            <div class="scard s1"><div class="sv" id="sReqs">0</div><div class="sl">Pending Requests</div></div>
+            <div class="scard s2"><div class="sv" id="sCompleted">0</div><div class="sl">Trips Today</div></div>
+            <div class="scard s3"><div class="sv" id="sPickupsToday">0</div><div class="sl">Pickups Today</div></div>
+            <div class="scard s4"><div class="sv" id="sCityDrivers">0</div><div class="sl">Drivers in City</div></div>
+        </div>
+
+        <div class="grid">
+            <div>
+                <div class="card">
+                    <div class="card-head">
+                        <div class="card-title">📍 Live Map — <span id="mapCity">City</span></div>
+                        <select class="city-select" id="cityFilter" onchange="onCityChange()">
+                            <option value="all">All Cities</option>
+                            <option value="Johannesburg">Johannesburg</option>
+                            <option value="Pretoria">Pretoria</option>
+                            <option value="Cape Town">Cape Town</option>
+                            <option value="Durban">Durban</option>
+                            <option value="Port Elizabeth">Port Elizabeth</option>
+                        </select>
+                    </div>
+                    <div class="map-wrap">
+                        <div class="map-bg" id="mapBg">
+                            <div class="road-h" style="top:30%"></div>
+                            <div class="road-h" style="top:60%"></div>
+                            <div class="road-v" style="left:25%"></div>
+                            <div class="road-v" style="left:55%"></div>
+                            <div class="road-v" style="left:80%"></div>
+                            <div class="city-label" style="top:8%;left:5%">NORTH</div>
+                            <div class="city-label" style="bottom:8%;left:5%">SOUTH</div>
+                            <div class="city-label" style="top:8%;right:5%">EAST</div>
+                            <div id="reqPins"></div>
+                            <div class="amb-marker" id="ambMarker" style="left:50%;top:55%">🚑</div>
+                        </div>
+                        <div class="map-legend">
+                            <span>🚑 Your ambulance</span>
+                            <span>📍 Emergency request</span>
+                            <span>🏥 Hospital</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="trip-card" id="tripCard">
+                    <div class="trip-pulse"><div class="pulse-dot"></div>En Route — Active Trip</div>
+                    <div class="trip-info">
+                        <div class="trip-name" id="tripName">—</div>
+                        <div class="trip-sub" id="tripSub">—</div>
+                        <div id="tripETA" style="font-size:0.9rem;margin-top:6px;font-weight:600">ETA: calculating...</div>
+                    </div>
+                    <div class="trip-actions">
+                        <button class="btn-complete" onclick="completeTrip()">✓ Mark Trip Complete</button>
+                        <button class="btn-sos">📞 SOS</button>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="card">
+                    <div class="card-head">
+                        <div class="card-title">🔔 Incoming Requests</div>
+                        <span class="count-badge" id="reqCount">0</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="req-list" id="reqList">
+                            <div class="empty-state"><div class="empty-icon">✅</div><p>No pending requests</p></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card" style="margin-top:16px">
+                    <div class="card-head">
+                        <div class="card-title">📅 Today's Pickups</div>
+                        <span style="font-size:0.8rem;color:#b2bec3" id="pickupDate2"></span>
+                    </div>
+                    <div class="card-body">
+                        <div id="pickupList"><div class="empty-state"><div class="empty-icon">📅</div><p>No pickups scheduled for today</p></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const sess = sessionStorage.getItem('currentUser');
+        if (!sess) { window.location.href = 'login.html'; }
+        const cu = JSON.parse(sess || '{}');
+        if (cu.type !== 'ambulance') { window.location.href = 'login.html'; }
+
+        let driver = { id: cu.id, name: cu.name, city: cu.city || 'Johannesburg', status: cu.status || 'available', vehicle: cu.vehicle || '—' };
+        let requests = [], pickups = [], patients = [], currentTrip = null, tripsToday = 0, moveInterval = null, etaVal = 15;
+
+        // Ambulance movement path (left%, top%)
+        const ambPath = [[50, 55], [42, 45], [35, 55], [30, 40], [40, 35], [52, 40], [62, 38], [70, 45], [78, 55], [85, 48], [88, 55]];
+        let ambStep = 0, ambMoving = false;
+
+        function init() {
+            patients = JSON.parse(localStorage.getItem('patients') || '[]');
+            requests = JSON.parse(localStorage.getItem('ambulanceRequests') || '[]').filter(r => r.status === 'pending');
+            pickups = JSON.parse(localStorage.getItem('scheduledPickups') || '[]');
+            document.getElementById('driverName').textContent = driver.name;
+            document.getElementById('driverVehicle').textContent = 'Vehicle: ' + driver.vehicle;
+            document.getElementById('mapCity').textContent = driver.city;
+            document.getElementById('pickupDate2').textContent = new Date().toLocaleDateString('en-ZA');
+            if (driver.status === 'available') { document.getElementById('statusToggle').classList.add('on'); document.getElementById('statusText').textContent = 'Available'; }
+            else { document.getElementById('statusToggle').classList.remove('on'); document.getElementById('statusText').textContent = 'Busy'; }
+            const cf = document.getElementById('cityFilter');
+            cf.value = driver.city; // default to driver's city
+            updateStats(); renderRequests(); renderPickups(); renderMapPins();
+            setInterval(pollRequests, 8000);
+            checkPickupReminders();
+        }
+
+        function toggleStatus() {
+            const on = document.getElementById('statusToggle').classList.toggle('on');
+            driver.status = on ? 'available' : 'busy';
+            document.getElementById('statusText').textContent = on ? 'Available' : 'Busy';
+            saveDriverStatus();
+        }
+
+        function saveDriverStatus() {
+            const emps = JSON.parse(localStorage.getItem('employees') || '{}');
+            const idx = (emps.ambulance || []).findIndex(a => a.id === driver.id);
+            if (idx !== -1) { emps.ambulance[idx].status = driver.status; localStorage.setItem('employees', JSON.stringify(emps)); }
+        }
+
+        function updateStats() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('sReqs').textContent = requests.length;
+            document.getElementById('sCompleted').textContent = tripsToday;
+            document.getElementById('sPickupsToday').textContent = pickups.filter(p => p.scheduledDate === today && p.city === driver.city).length;
+            const emps = JSON.parse(localStorage.getItem('employees') || '{}');
+            document.getElementById('sCityDrivers').textContent = (emps.ambulance || []).filter(a => a.city === driver.city).length;
+        }
+
+        function onCityChange() {
+            document.getElementById('mapCity').textContent = document.getElementById('cityFilter').value;
+            renderRequests(); renderMapPins();
+        }
+
+        function renderRequests() {
+            const city = document.getElementById('cityFilter').value;
+            const show = requests.filter(r => city === 'all' || r.city === city);
+            document.getElementById('reqCount').textContent = show.length;
+            if (!show.length) { document.getElementById('reqList').innerHTML = '<div class="empty-state"><div class="empty-icon">✅</div><p>No pending requests</p><p style="font-size:0.8rem;margin-top:5px">Showing: ' + city + '</p></div>'; return; }
+
+            const urgencyColor = { critical: '#e63946', high: '#fd7014', standard: '#0984e3' };
+            const urgencyLabel = { critical: '🔴 CRITICAL', high: '🟠 HIGH', standard: '🔵 STANDARD' };
+
+            document.getElementById('reqList').innerHTML = show.map(r => {
+                const isDispatch = r.type === 'dispatch';
+                const cardBorder = isDispatch
+                    ? (urgencyColor[r.urgency] || '#fd7014')
+                    : (r.type === 'emergency' ? '#e63946' : '#ffeaa7');
+
+                const header = isDispatch
+                    ? `<div style="background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:8px;padding:10px 13px;margin-bottom:11px;display:flex;justify-content:space-between;align-items:center">
+                            <span style="font-size:0.75rem;font-weight:700;color:#a29bfe;letter-spacing:0.5px">🏥 CLINIC DISPATCH — ${urgencyLabel[r.urgency]||'HIGH'}</span>
+                            <span style="font-size:0.75rem;color:#b2bec3">By: ${r.dispatchedBy||'Clerk'}</span>
+                       </div>`
+                    : `<div style="margin-bottom:10px">
+                            <span class="req-type type-${r.type}">${r.type === 'emergency' ? '🚨 PATIENT EMERGENCY' : '📅 Scheduled'}</span>
+                       </div>`;
+
+                const extraInfo = isDispatch ? `
+                    <div style="background:rgba(255,255,255,0.04);border-radius:9px;padding:11px;margin-bottom:11px;font-size:0.83rem;line-height:1.8">
+                        ${r.pickupLocation ? `<div>📍 <strong>Pickup:</strong> ${r.pickupLocation}</div>` : ''}
+                        ${r.destination    ? `<div>🏥 <strong>Destination:</strong> ${r.destination}</div>` : ''}
+                        ${r.patientCondition && r.patientCondition !== '—' ? `<div>🩺 <strong>Condition:</strong> ${r.patientCondition}</div>` : ''}
+                        ${r.patientPhone && r.patientPhone !== '—' ? `<div>📞 <strong>Patient phone:</strong> ${r.patientPhone}</div>` : ''}
+                    </div>
+                    ${r.notes ? `<div style="background:rgba(253,203,110,0.1);border:1px solid rgba(253,203,110,0.2);border-radius:8px;padding:10px;margin-bottom:11px;font-size:0.83rem;color:#ffeaa7"><strong>📋 Driver notes:</strong> ${r.notes}</div>` : ''}
+                ` : '';
+
+                return `
+                <div class="req-card" style="border-left: 4px solid ${cardBorder}">
+                    ${header}
+                    <div class="req-head">
+                        <div>
+                            <div class="req-name">${r.patientName}</div>
+                            <div class="req-city">📍 ${r.city}</div>
+                        </div>
+                        <span style="font-size:0.75rem;color:#b2bec3">${timeAgo(r.timestamp)}</span>
+                    </div>
+                    ${extraInfo}
+                    <div class="req-meta">
+                        <div><div class="meta-label">Patient ID</div><div style="font-size:0.82rem">${r.patientId}</div></div>
+                        <div><div class="meta-label">Type</div><div style="font-size:0.82rem">${isDispatch ? 'Clinic Dispatch' : r.type}</div></div>
+                    </div>
+                    <div class="req-actions">
+                        <button class="btn-accept" onclick="acceptRequest('${r.id}')">✓ Accept</button>
+                        <button class="btn-decline" onclick="declineRequest('${r.id}')">✗ Decline</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderPickups() {
+            const today = new Date().toISOString().split('T')[0];
+            const city = document.getElementById('cityFilter').value;
+            const todays = pickups.filter(p => p.scheduledDate === today && (city === 'all' || p.city === city));
+            if (!todays.length) { document.getElementById('pickupList').innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><p>No pickups today</p></div>'; return; }
+            document.getElementById('pickupList').innerHTML = todays.map(p => `
+                <div class="pickup-card">
+                    <div class="pickup-time">${p.time || '09:00'}</div>
+                    <div class="pickup-info">
+                        <strong>${p.patientName}</strong><br>
+                        🏥 ${p.destination}<br>
+                        📋 ${p.reason}
+                    </div>
+                </div>`).join('');
+        }
+
+        function renderMapPins() {
+            const city = document.getElementById('cityFilter').value;
+            const pins = document.getElementById('reqPins');
+            const show = patients.filter(p => p.ambulanceStatus === 'requesting' && (city === 'all' || p.city === city));
+            pins.innerHTML = show.map((p, i) => {
+                const left = 10 + (i * 18) % 72, top = 15 + (i * 22) % 65;
+                return `<div class="req-pin pulsing" style="left:${left}%;top:${top}%" onclick="showPatientInfo('${p.id}')" title="${p.name} ${p.surname} — ${p.city}">📍</div>`;
+            }).join('');
+            // Add hospital pin
+            pins.innerHTML += '<div style="position:absolute;left:78%;top:18%;font-size:1.3rem;transform:translate(-50%,-50%)">🏥</div>';
+        }
+
+        function acceptRequest(reqId) {
+            if (currentTrip) { showNotif('Active Trip', 'Complete your current trip before accepting a new one.'); return; }
+            const req = requests.find(r => r.id === reqId);
+            if (!req) return;
+            req.status = 'accepted'; req.driverId = driver.id; req.driverName = driver.name; req.eta = 15;
+            const all = JSON.parse(localStorage.getItem('ambulanceRequests') || '[]');
+            const idx = all.findIndex(r => r.id === reqId);
+            if (idx !== -1) { all[idx] = req; localStorage.setItem('ambulanceRequests', JSON.stringify(all)); }
+            const pi = patients.findIndex(p => p.id === req.patientId);
+            if (pi !== -1) { patients[pi].ambulanceStatus = 'enroute'; localStorage.setItem('patients', JSON.stringify(patients)); }
+            currentTrip = req;
+            document.getElementById('tripCard').classList.add('active');
+            document.getElementById('tripName').textContent = req.patientName;
+
+            const tripDetail = req.type === 'dispatch'
+                ? `📍 ${req.pickupLocation || req.city} → 🏥 ${req.destination || 'Destination'}${req.urgency === 'critical' ? ' · 🔴 CRITICAL' : req.urgency === 'high' ? ' · 🟠 HIGH' : ''}`
+                : `📍 ${req.city} — ${req.type === 'emergency' ? 'Patient Emergency' : 'Scheduled'}`;
+            document.getElementById('tripSub').textContent = tripDetail;
+
+            // Show driver notes if dispatch
+            const etaEl = document.getElementById('tripETA');
+            etaEl.textContent = 'ETA: calculating...';
+            if (req.type === 'dispatch' && req.notes) {
+                etaEl.innerHTML = `<div style="font-size:0.8rem;margin-bottom:6px;opacity:0.85">📋 ${req.notes}</div>ETA: calculating...`;
+            }
+
+            etaVal = 15; startAmbulanceMovement();
+            if (driver.status === 'available') { document.getElementById('statusToggle').classList.remove('on'); driver.status = 'busy'; document.getElementById('statusText').textContent = 'Busy'; saveDriverStatus(); }
+            requests = requests.filter(r => r.id !== reqId);
+            renderRequests(); renderMapPins(); updateStats();
+        }
+
+        function declineRequest(reqId) { requests = requests.filter(r => r.id !== reqId); renderRequests(); updateStats(); }
+
+        function startAmbulanceMovement() {
+            if (moveInterval) clearInterval(moveInterval);
+            ambMoving = true;
+            moveInterval = setInterval(() => {
+                ambStep = (ambStep + 1) % ambPath.length;
+                const m = document.getElementById('ambMarker');
+                m.style.left = ambPath[ambStep][0] + '%'; m.style.top = ambPath[ambStep][1] + '%';
+                etaVal = Math.max(0, etaVal - 1.5);
+                document.getElementById('tripETA').textContent = etaVal > 0 ? `ETA: ~${Math.ceil(etaVal)} minutes` : '🚑 Arriving now!';
+            }, 3000);
+        }
+
+        function completeTrip() {
+            if (!currentTrip) return;
+            if (moveInterval) { clearInterval(moveInterval); moveInterval = null; }
+            const all = JSON.parse(localStorage.getItem('ambulanceRequests') || '[]');
+            const idx = all.findIndex(r => r.id === currentTrip.id);
+            if (idx !== -1) { all[idx].status = 'completed'; localStorage.setItem('ambulanceRequests', JSON.stringify(all)); }
+            const pi = patients.findIndex(p => p.id === currentTrip.patientId);
+            if (pi !== -1) { patients[pi].ambulanceStatus = 'none'; localStorage.setItem('patients', JSON.stringify(patients)); }
+            tripsToday++; currentTrip = null;
+            document.getElementById('tripCard').classList.remove('active');
+            // Reset ambulance
+            const m = document.getElementById('ambMarker'); m.style.left = '50%'; m.style.top = '55%';
+            if (driver.status === 'busy') { document.getElementById('statusToggle').classList.add('on'); driver.status = 'available'; document.getElementById('statusText').textContent = 'Available'; saveDriverStatus(); }
+            renderMapPins(); updateStats();
+            showNotif('Trip Complete', 'Trip marked as completed. Well done!');
+        }
+
+        function pollRequests() {
+            const all = JSON.parse(localStorage.getItem('ambulanceRequests') || '[]');
+            const pending = all.filter(r => r.status === 'pending');
+            const newOnes = pending.filter(r => !requests.find(x => x.id === r.id));
+            if (newOnes.length) {
+                const d = newOnes.find(r => r.type === 'dispatch');
+                const e = newOnes.find(r => r.type === 'emergency');
+                if (d) showNotif('🏥 Clinic Dispatch Alert!', `${d.patientName} — ${d.urgency?.toUpperCase() || 'HIGH'} urgency. Dispatched by ${d.dispatchedBy || 'clerk'}.`);
+                else if (e) showNotif('🚨 New Emergency Request!', `${e.patientName} in ${e.city} needs help.`);
+                else showNotif('New Request!', 'A new ambulance request has come in.');
+            }
+            requests = pending;
+            patients = JSON.parse(localStorage.getItem('patients') || '[]');
+            renderRequests(); renderMapPins(); updateStats();
+        }
+
+        function checkPickupReminders() {
+            const today = new Date().toISOString().split('T')[0];
+            const todays = pickups.filter(p => p.scheduledDate === today && p.city === driver.city);
+            if (todays.length) showNotif('Pickup Reminder', `You have ${todays.length} scheduled pickup(s) today in ${driver.city}.`);
+        }
+
+        function showPatientInfo(pid) {
+            const p = patients.find(x => x.id === pid);
+            if (p) showNotif(`Patient: ${p.name} ${p.surname}`, `Condition: ${p.condition} | City: ${p.city} | Phone: ${p.phone || 'N/A'}`);
+        }
+
+        function showNotif(title, msg) {
+            document.getElementById('notifTitle').textContent = title;
+            document.getElementById('notifMsg').textContent = msg;
+            document.getElementById('notifBar').classList.add('show');
+        }
+        function dismissNotif() { document.getElementById('notifBar').classList.remove('show'); }
+
+        function timeAgo(ts) {
+            if (!ts) return 'Just now';
+            const m = Math.floor((Date.now() - new Date(ts).getTime()) / 60000);
+            return m < 1 ? 'Just now' : m < 60 ? `${m}m ago` : `${Math.floor(m / 60)}h ago`;
+        }
+
+        function logout() { sessionStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
+
+        init();
+    </script>
+</body>
+</html>
