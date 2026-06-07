@@ -1031,7 +1031,7 @@ function confirmReset() {
     setTimeout(() => location.reload(), 1500);
 }
 
-function logout() { sessionStorage.removeItem('currentUser'); window.location.href='login.html'; }
+function logout() { sessionStorage.removeItem('currentUser'); window.location.href='index.html'; }
 
 // ── Escape ────────────────────────────────────────────────────
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
