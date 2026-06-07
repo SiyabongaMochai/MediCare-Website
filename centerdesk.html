@@ -117,6 +117,144 @@
         .empty{text-align:center;padding:44px 20px;color:#555}
         .empty .ei{font-size:2.4rem;margin-bottom:10px}
         @media(max-width:768px){.sidebar{display:none}.main{margin-left:0}}
+        /* =========================
+   MOBILE RESPONSIVE FIXES
+   ========================= */
+
+@media (max-width: 1024px) {
+    .main {
+        padding: 18px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .quick-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+
+    /* Layout */
+    .sidebar {
+        display: none;
+    }
+
+    .main {
+        margin-left: 0;
+        padding: 14px;
+    }
+
+    /* Navbar */
+    .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    /* Page headers */
+    .page-header h1 {
+        font-size: 1.3rem;
+    }
+
+    .page-header p {
+        font-size: 0.8rem;
+    }
+
+    /* Stats */
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+    }
+
+    /* Cards */
+    .card {
+        border-radius: 10px;
+    }
+
+    .card-body {
+        padding: 14px;
+    }
+
+    /* Quick actions */
+    .quick-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Tables → make scroll smoother */
+    .table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .data-table th,
+    .data-table td {
+        font-size: 0.75rem;
+        padding: 8px;
+        white-space: nowrap;
+    }
+
+    /* Search bar */
+    .search-bar {
+        flex-direction: column;
+    }
+
+    .search-input,
+    .search-select {
+        width: 100%;
+    }
+
+    /* Buttons */
+    .btn {
+        width: 100%;
+        margin-top: 5px;
+    }
+
+    .btn-sm {
+        width: auto;
+    }
+
+    /* Modal */
+    .modal-box {
+        width: 95%;
+        max-height: 90vh;
+        border-radius: 12px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .navbar-brand {
+        font-size: 1rem;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+    }
+
+    .card-title {
+        font-size: 0.95rem;
+    }
+
+    .log-entry {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .log-time {
+        font-size: 0.7rem;
+    }
+}
     </style>
 </head>
 <body>
